@@ -21,7 +21,6 @@ from PyQt5 import QtGui
 from PyQt5.QtGui import QPalette, QColor, QIcon, QPixmap, QFont
 
 
-
 def getLocalDatetime(tz_str: str):
     tz = pytz.timezone(tz_str)
     utc_dt = datetime.datetime.utcnow()
@@ -328,6 +327,16 @@ def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, 
 
 def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRole], QDialogButtonBox.StandardButton]], acceptedFunc: Tuple[Callable, Dict[str, Any]] = None,
                           rejectedFunc: Tuple[Callable, Dict[str, Any]] = None):
+    """
+    Creates a ``Qt.QDialogButtonBox`` with the passed arguments and returns it.
+
+    :param btns: The buttons which gets added to the button box: List[Union[Tuple[label: str, btn_role: QDialogButtonBox.ButtonRole], std_btn: QDialogButtonBox.StandardButton]]
+    :param acceptedFunc: The function and his kwargs which gets called when a button with QDialogButtonBox.AcceptRole gets clicked, default to None: Tuple[func: Callable, kwargs: Dict[attr: str, value: Any]]
+    :param rejectedFunc: The function and his kwargs which gets called when a button with QDialogButtonBox.RejectRole gets clicked, default to None: Tuple[func: Callable, kwargs: Dict[attr: str, value: Any]]
+
+    :return: The button box: Qt.QDialogButtonBox
+    """
+
 
     dlgBtnBox = QDialogButtonBox()
 
@@ -341,7 +350,7 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
             dlgBtnBox.addButton(btn)
 
         else:
-            raise ValueError("Unexpected argument.")
+            raise TypeError(f"Unexpected type '{btn.__class__.__name__}'")
 
     if acceptedFunc is not None:
         func_accept = acceptedFunc[0]
@@ -560,10 +569,10 @@ class MainWindow(QMainWindow):
 
             self.dlgNewTextBtnBox = createDialogButtonBox(
                 [
-                    ("Create && Save", QDialogButtonBox.AcceptRole),
+                    1,
                     ("Cancel", QDialogButtonBox.RejectRole)
                 ],
-                (self.on_btns_newtext_pressed, {'btn': QDialogButtonBox.Save}),
+                (self.on_btns_newtext_pressed, {'asd': QDialogButtonBox.Save}),
                 (self.on_btns_newtext_pressed, {'btn': QDialogButtonBox.Cancel})
             )
 
@@ -679,6 +688,8 @@ class MainWindow(QMainWindow):
         elif btn == QDialogButtonBox.Cancel:
             self.dlgNewText.close()
 
+        else:
+            raise ValueError("Unexpected argument.")
 
     def on_btns_deltext_pressed(self, btn):
 
