@@ -676,7 +676,6 @@ class MainWindow(QMainWindow):
             text = self.inputText.text()
 
             if label == "" and text == "":
-
                 createMessageBox(self, "Error!", "Text and Label is empty, please try again",
                                  [QMessageBox.Ok], QMessageBox.Critical)
 
@@ -714,7 +713,8 @@ class MainWindow(QMainWindow):
             self.dlgNewText.close()
 
         else:
-            raise ValueError("Unexpected argument.")
+            raise TypeError(f"Unexpected argument '{btn}'.")
+
 
     def on_btns_deltext_pressed(self, btn):
 
@@ -740,7 +740,6 @@ class MainWindow(QMainWindow):
 
         if btnName == "Yes":
             with open("./json/texts.json", "r") as fdata:
-                data = json.load(fdata)
                 data = {}
                 with open("./json/texts.json", "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
@@ -748,6 +747,7 @@ class MainWindow(QMainWindow):
                 updateEditorTable(self.tableWidget, self.tabs)
                 createMessageBox(self, "Clear Texts", "All texts have been deleted!", [QMessageBox.Ok],
                                  QMessageBox.Information)
+
 
 app = QApplication([])
 app.setWindowIcon(QIcon(os.path.join(basedir, 'images/leuchtturm.ico')))
