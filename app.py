@@ -6,7 +6,7 @@ from events.error_handler import on_error
 from utils.utils import *
 
 
-# **************** PROGRAM ****************
+# Program init
 basedir = os.path.dirname(__file__)
 
 appID = 'sca.leuchtturm.v1.0'
@@ -22,9 +22,8 @@ TODO:
 
 """
 
-# Global
 
-# ******************************* Main Window *******************************
+# Main
 
 class MainWindow(QMainWindow):
     """
@@ -38,7 +37,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Leuchtturm")
         self.setFixedSize(700, 500)
-        self.setWindowIcon(QIcon("./images/lighthouse.png"))
+        self.setWindowIcon(QIcon("utils/images/lighthouse.png"))
 
         windowFont = QFont("Calibri", 10)
         self.setFont(windowFont)
@@ -95,8 +94,8 @@ class MainWindow(QMainWindow):
 
         self.tabs = createTab(
             [
-                (QLabel("Hallo"), QIcon("./images/icons/execute_dark.png"), "Run"),
-                (editorWidget, QIcon("./images/icons/notebook.png"), "Editor")
+                (QLabel("Hallo"), QIcon("utils/images/icons/execute_dark.png"), "Run"),
+                (editorWidget, QIcon("utils/images/icons/notebook.png"), "Editor")
             ],
             self.on_tab_changed
         )
@@ -111,7 +110,7 @@ class MainWindow(QMainWindow):
 
 
 app = QApplication([])
-app.setWindowIcon(QIcon(os.path.join(basedir, 'images/leuchtturm.ico')))
+app.setWindowIcon(QIcon(os.path.join(basedir, 'utils/images/leuchtturm.ico')))
 
 sys.excepthook = on_error
 

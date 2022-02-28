@@ -118,7 +118,7 @@ def createWindow(g: GUI):
             ),
             sg.Button(
                 button_color=darkGray,
-                image_filename="./images/icons/bug.png",
+                image_filename="utils/images/icons/bug.png",
                 image_size=(28, 28),
                 image_subsample=18,
                 border_width=0

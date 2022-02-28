@@ -153,6 +153,6 @@ cython_debug/
 
 
 # PROJECT
-json/
+utils/json/
 log/
 
