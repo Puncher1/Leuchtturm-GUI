@@ -1,28 +1,82 @@
+import sys, os, traceback
+
+from random import choice
+import functools
+import re
+import json
+import datetime
+from datetime import timezone
+import pytz
+
+import typing
+from typing import Tuple, Union, Callable, List, Any
+
+import serial
+from threading import Thread
+from ctypes import windll
+
+from PyQt5.QtCore import QSize, QMutex, Qt
+from PyQt5.QtWidgets import *
+from PyQt5 import QtGui
+from PyQt5.QtGui import QPalette, QColor, QIcon, QPixmap, QFont
+
+
+class _winMain(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+
+def _winError(boxTitle: str, boxText: str,
+              stdBtns: List[Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]], icon: QMessageBox.Icon):
+    """
+    Creates a ``Qt.QMessageBox`` and executes it.
+
+    :param mainWindow: The main window. It's needed to align the message box above the main window; QMainWindow
+    :param boxTitle: The message box's title; str
+    :param boxText: The message box's text; str
+    :param stdBtns: The standard buttons of the message box; Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
+    :param icon: The message box's icon (not window icon): QMessageBox.Icon
+    :param func: TThe follow-up function which gets called when the buttons get clicked, default to None: Callable
+    """
+
+    msgBox = QMessageBox()
+    msgBox.setWindowTitle(boxTitle)
+    msgBox.setText(boxText)
+    msgBox.setStandardButtons(functools.reduce(lambda x, y: x | y, stdBtns))
+    msgBox.setIcon(icon)
+
+    msgBox.exec()
+
+
+def getTraceback():
+
+    error = sys.exc_info()[1]
+    etype = type(error)
+    trace = error.__traceback__
+    lines = traceback.format_exception(etype, error, trace)
+    full_traceback_text = ''.join(lines)
+
+    return full_traceback_text
+
+
+def getLocalDatetime(tz_str: str):
+    tz = pytz.timezone(tz_str)
+    utc_dt = datetime.datetime.utcnow()
+    tz_dtOffset = utc_dt.astimezone(tz)
+    utc_offset = tz_dtOffset.strftime("%z")
+    utc_offsetHours = re.search("\d{2}", utc_offset)
+    utc_offsetHours = int(utc_offsetHours.group(0))
+
+    tz_dt = utc_dt + datetime.timedelta(hours=utc_offsetHours)
+    return tz_dt
+
+
+# **************** PROGRAM ****************
 try:
-    from PyQt5.QtCore import QSize, QMutex, Qt
-    from PyQt5.QtWidgets import *
-    from PyQt5 import QtGui
-    from PyQt5.QtGui import QPalette, QColor, QIcon, QPixmap, QFont
-    from random import choice
-    import functools
-
-    import serial
-    import sys, os
-    import json
-
-    import typing
-    from typing import Tuple, Union, Callable, List
-
-    from threading import Thread
-
     basedir = os.path.dirname(__file__)
 
-    try:
-        from ctypes import windll
-        appID = 'sca.leuchtturm.v1.0'
-        windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
-    except ImportError as e:
-        print(f"{e.__class__.__name__}: {e}")
+    appID = 'sca.leuchtturm.v1.0'
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
     stdFont = "Calibri"
     stdFontSize = 10
@@ -35,6 +89,9 @@ try:
     - run tab
     
     """
+
+
+    # ********************* Growing TextEdit *********************
 
     def createLabelText(text: str, size: Tuple[int, int] = None, font: str = stdFont, fontSize: int = stdFontSize, bold: bool = False, underline: bool = False, italic: bool = False) -> QLabel:
         """
@@ -85,8 +142,8 @@ try:
         :param underline: Whether the text should be underlined or not (default to False); bool
         :param italic: Whether the text should be italic or not (default to False); bool
         :param image: An image which replaces the button (default to None): Tuple[image_path; str, Tuple[x: int, y: int]]
-        :param func: The follow-up function which is called when the button is pressed (default to None); Callable
-        :return: The Label: Qt.QPushButton
+        :param func: The follow-up function which gets called when the button is pressed (default to None); Callable
+        :return: The push-button: Qt.QPushButton
         """
 
         if image is None and text is None:
@@ -139,7 +196,8 @@ try:
         :param placeholder: The placeholder text (default to None); str
         :param font: The font which has the button's text (default to "Calibri"); str
         :param fontSize: The font's size (default to 10); int
-        :return: Qt.QLineEdit
+
+        :return: The line edit: Qt.QLineEdit
         """
 
         textFont = QFont(font, fontSize)
@@ -155,12 +213,113 @@ try:
 
         return textField
 
+
+    def createTable(rowCount: int, colCount: int, colsWidth: List[Tuple[int, int]] = None, isCellSelection: bool = True,
+                    isRowSelection: bool = True, isEditingTrigger: bool = True, isHHeaderFixed: bool = False,
+                    isVHeaderFixed: bool = False):
+        """
+        Creates a ``Qt.QTableWidget`` with the passed arguments and returns it.
+
+        :param rowCount: The amount of rows which the table should have: int
+        :param colCount: The amount of columns which the table should have: int
+        :param colsWidth: The columns' width, default to None: List[Tuple[col: int, width: int]]
+        :param isCellSelection: Whether the cell selection should be activated or not, default to True: bool
+        :param isRowSelection: Whether the row selection should be activated or not, default to True: bool
+        :param isEditingTrigger: Whether the editing trigger should be activated or not, default to True: bool
+        :param isHHeaderFixed: Whether the horizontal header should be fixed or not, default to False: bool
+        :param isVHeaderFixed: Whether the vertical header should be fixed or not, default to False: bool
+
+        :return: The table: Qt.QTableWidget
+        """
+
+        table = QTableWidget()
+        table.setRowCount(rowCount)
+        table.setColumnCount(colCount)
+
+        if colsWidth is not None:
+            for colWidth in colsWidth:
+                col = colWidth[0]
+                w = colWidth[1]
+                table.setColumnWidth(col, w)
+
+        if not isCellSelection:
+            table.setSelectionMode(QAbstractItemView.NoSelection)
+
+        if not isRowSelection:
+            table.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        if not isEditingTrigger:
+            table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        if isHHeaderFixed:
+            tableHHeader = table.horizontalHeader()
+            tableHHeader.setSectionResizeMode(QHeaderView.Fixed)
+
+        if isVHeaderFixed:
+            tableVHeader = table.verticalHeader()
+            tableVHeader.setSectionResizeMode(QHeaderView.Fixed)
+
+        return table
+
+
+    def createTab(tabs: List[Tuple[Any, Union[QIcon, None], str]], func: Callable = None):
+        """
+        Creates a ``Qt.QTabWidget`` with the passed arguments and returns it.
+
+        :param tabs: The tabs which should be added to the tab widget: List[Tuple[widget: Any, icon: Union[QIcon, None], label: str]]
+        :param func: The follow-up function which gets called when the tab changed, default to None: Callable
+        :return: The tab: Qt.QTabWidget
+        """
+
+
+        tabWidget = QTabWidget()
+
+        for tab in tabs:
+            widget = tab[0]
+            icon = tab[1]
+            label = tab[2]
+
+            tabWidget.addTab(widget, icon, label)
+
+        if func is not None:
+            tabWidget.currentChanged.connect(func)
+
+        return tabWidget
+
+
+    def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
+                         stdBtns: List[Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]], icon: QMessageBox.Icon,
+                         func: Callable = None):
+        """
+        Creates a ``Qt.QMessageBox`` and executes it.
+
+        :param mainWindow: The main window. It's needed to align the message box above the main window; QMainWindow
+        :param boxTitle: The message box's title; str
+        :param boxText: The message box's text; str
+        :param stdBtns: The standard buttons of the message box; Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
+        :param icon: The message box's icon (not window icon): QMessageBox.Icon
+        :param func: TThe follow-up function which gets called when the buttons get clicked, default to None: Callable
+        """
+
+        msgBox = QMessageBox(mainWindow)
+        msgBox.setWindowTitle(boxTitle)
+        msgBox.setText(boxText)
+        msgBox.setStandardButtons(functools.reduce(lambda x, y: x | y, stdBtns))
+        msgBox.setIcon(icon)
+
+        if func is not None:
+            msgBox.accepted.connect(lambda: func(msgBox.clickedButton().text()))
+            msgBox.rejected.connect(lambda: func(msgBox.clickedButton().text()))
+
+        msgBox.exec()
+
+
     def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout, Tuple[int, int]]]):
         """
         Creates a ``Qt.QGridLayout`` with the passed arguments and returns it.
 
         :param args: The target/s which should be placed into the layout; Union[Tuple[QWidget, Tuple[x: int, y: int]], Tuple[QLayout, Tuple[x: int, y: int]]]
-        :return: Qt.QGridLayout
+        :return: The grid layout: Qt.QGridLayout
         """
 
         layout = QGridLayout()
@@ -176,33 +335,6 @@ try:
                 layout.addWidget(target, y, x)
 
         return layout
-
-
-    def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
-                         stdBtns: List[Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]], icon: QMessageBox.Icon,
-                         func: Callable = None):
-        """
-        Creates a ``Qt.QMessageBox`` and executes it.
-
-        :param mainWindow: The main window. It's needed to align the message box above the main window; QMainWindow
-        :param boxTitle: The message box's title; str
-        :param boxText: The message box's text; str
-        :param stdBtns: The standard buttons of the message box; Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
-        :param icon: The message box's icon (not window icon): QMessageBox.Icon
-        """
-
-        msgBox = QMessageBox(mainWindow)
-        msgBox.setWindowTitle(boxTitle)
-        msgBox.setText(boxText)
-        msgBox.setStandardButtons(functools.reduce(lambda x, y: x | y, stdBtns))
-        msgBox.setIcon(icon)
-
-        if func is not None:
-            msgBox.accepted.connect(lambda: func(msgBox.clickedButton().text()))
-            msgBox.rejected.connect(lambda: func(msgBox.clickedButton().text()))
-
-        msgBox.exec()
-
 
     def updateEditorTable(table: QTableWidget, tabs: QTabWidget):
         """
@@ -245,24 +377,36 @@ try:
                 labelItem.setFont(itemFont)
                 labelItem.setText(k)
 
-                textItem = QTableWidgetItem()
-                textItem.setTextAlignment(Qt.AlignCenter)
+                textItem = QTextEdit()
                 textItem.setFont(itemFont)
                 textItem.setText(v)
+                textItem.setReadOnly(True)
+                textItem.setTextInteractionFlags(Qt.NoTextInteraction)
+                textItem.setFrameStyle(QFrame.NoFrame)
+                textItem.setAlignment(Qt.AlignCenter)
+                textItem.setFixedHeight(round(textItem.document().size().height()))
 
                 table.setItem(row, col, labelItem)
-                table.setItem(row, col + 1, textItem)
+                table.setCellWidget(row, col + 1, textItem)
+                table.resizeRowsToContents()
 
                 row += 1
 
 
-    class MainWindow(QMainWindow):
+    # ******************************* Main Window *******************************
+
+    class MainWindow(_winMain):
+        """
+        The main window of the application.
+        Inherits from ``_winMain`` which inherits from ``Qt.QMainWindow``
+        """
 
         def __init__(self):
             super().__init__()
             self.setWindowTitle("Leuchtturm")
             self.setFixedSize(700, 500)
             self.setWindowIcon(QIcon("./images/lighthouse.png"))
+
             windowFont = QFont("Calibri", 10)
             self.setFont(windowFont)
 
@@ -277,20 +421,7 @@ try:
             descWidget.setWordWrap(True)
             descWidget.setFixedSize(590, 50)
 
-            self.tableWidget = QTableWidget()
-            self.tableWidget.setRowCount(20)
-            self.tableWidget.setColumnCount(2)
-            self.tableWidget.setColumnWidth(0, 100)
-            self.tableWidget.setColumnWidth(1, 496)
-            self.tableWidget.setSelectionMode(QAbstractItemView.NoSelection)
-            self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-            self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
-            tableHHeader = self.tableWidget.horizontalHeader()
-            tableHHeader.setSectionResizeMode(QHeaderView.Fixed)
-
-            tableVHeader = self.tableWidget.verticalHeader()
-            tableVHeader.setSectionResizeMode(QHeaderView.Fixed)
+            self.tableWidget = createTable(20, 2, [(0, 100), (1, 475)], False, True, False, True, True)
 
             buttonNew = createPushButton(
                 text="New",
@@ -329,12 +460,14 @@ try:
             editorWidget = QWidget()
             editorWidget.setLayout(editorLayout)
 
-            self.tabs = QTabWidget()
-            self.tabs.addTab(QLabel("Hallo"), QIcon("./images/icons/execute_dark.png"), "Run")
-            self.tabs.addTab(editorWidget, QIcon("./images/icons/notebook.png"), "Editor")
-            self.tabs.currentChanged.connect(self.on_tab_changed)
+            self.tabs = createTab(
+                [
+                    (QLabel("Hallo"), QIcon("./images/icons/execute_dark.png"), "Run"),
+                    (editorWidget, QIcon("./images/icons/notebook.png"), "Editor")
+                ],
+                self.on_tab_changed
+            )
             self.setCentralWidget(self.tabs)
-
 
         def on_tab_changed(self):
             updateEditorTable(self.tableWidget, self.tabs)
@@ -355,12 +488,11 @@ try:
                 self.dlgNewText.setFixedSize(500, 280)
                 self.dlgNewText.setWindowTitle("New Text")
 
-
                 titleWidget = createLabelText("New Text", fontSize=18, bold=True, underline=True)
                 descWidget = createLabelText("Please type your text and a specific label into the text-fields"
                                              "\nbelow."
                                              "\nNOTE: The maximum length of the text is 1500 and the maximum"
-                                             "\nlength of the label is 10 symbols.",
+                                             "\nlength of the label is 10 characters.",
                                              fontSize=11
                 )
 
@@ -598,5 +730,19 @@ try:
     #             readString = ser.read(len(myString))
     #             print(readString)
     #         ser.close()
-except Exception as e:
-    print(f"{e.__class__.__name__}: {e}")
+
+except Exception:
+
+    full_traceback_text = getTraceback()
+
+    _winError(f"An unexpected error has occurred!",
+          f"{full_traceback_text}"
+          f"\n\nContact: SCA, Tel. 267",
+          [QMessageBox.Ok],
+          QMessageBox.Critical)
+
+    cet_dt = getLocalDatetime("CET")
+    cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
+
+    errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
+    errorFile.write(full_traceback_text)
