@@ -106,8 +106,6 @@ class MainWindow(QMainWindow):
         updateEditorTable(self.tableWidget, self.tabs)
 
 
-    # **************************************** EDITOR TAB *******************************************
-
 
 app = QApplication([])
 app.setWindowIcon(QIcon(os.path.join(basedir, 'utils/images/leuchtturm.ico')))
