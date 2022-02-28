@@ -34,24 +34,18 @@ def getLocalDatetime(tz_str: str):
     return tz_dt
 
 
-def _winError(exc_type, exc_value, exc_tb):
+def on_error(exc_type, exc_error, exc_tb):
     """
-    Creates a ``Qt.QMessageBox`` and executes it.
-
-    :param mainWindow: The main window. It's needed to align the message box above the main window; QMainWindow
-    :param boxTitle: The message box's title; str
-    :param boxText: The message box's text; str
-    :param stdBtns: The standard buttons of the message box; Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
-    :param icon: The message box's icon (not window icon): QMessageBox.Icon
-    :param func: TThe follow-up function which gets called when the buttons get clicked, default to None: Callable
+    Global error handler which executes a ``Qt.QMessageBox`` with the traceback.
     """
 
-    lines = traceback.format_exception(exc_type, exc_value, exc_tb)
+    lines = traceback.format_exception(exc_type, exc_error, exc_tb)
     full_traceback_text = ''.join(lines)
 
     msgBox = QMessageBox()
     msgBox.setWindowTitle("An unexpected error has occurred!")
-    msgBox.setText(full_traceback_text)
+    msgBox.setText(f"{full_traceback_text}"
+                   f"\n\nPlease contact SCA (Tel. 267) if this error remain.")
     msgBox.setStandardButtons(QMessageBox.Ok)
     msgBox.setIcon(QMessageBox.Critical)
 
@@ -62,6 +56,7 @@ def _winError(exc_type, exc_value, exc_tb):
     errorFile.write(full_traceback_text)
 
     msgBox.exec()
+    sys.exit(1)
 
 
 # **************** PROGRAM ****************
@@ -685,10 +680,13 @@ class MainWindow(QMainWindow):
 app = QApplication([])
 app.setWindowIcon(QIcon(os.path.join(basedir, 'images/leuchtturm.ico')))
 
-sys.excepthook = _winError
+sys.excepthook = on_error
+
 window = MainWindow()
 window.show()
-ret = app.exec()
+app.exec()
+
+
 # def serial_ports():
 #     """
 #     Lists every COM port available on the system.
