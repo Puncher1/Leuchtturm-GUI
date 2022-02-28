@@ -9,7 +9,7 @@ from datetime import timezone
 import pytz
 
 import typing
-from typing import Tuple, Union, Callable, List, Any
+from typing import Tuple, Union, Callable, List, Any, Dict
 
 import serial
 from threading import Thread
@@ -325,6 +325,39 @@ def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, 
 
     return dlg
 
+
+def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRole], QDialogButtonBox.StandardButton]], acceptedFunc: Tuple[Callable, Dict[str, Any]] = None,
+                          rejectedFunc: Tuple[Callable, Dict[str, Any]] = None):
+
+    dlgBtnBox = QDialogButtonBox()
+
+    for btn in btns:
+        if type(btn) == tuple:
+            btnLabel = btn[0]
+            btnRole = btn[1]
+            dlgBtnBox.addButton(btnLabel, btnRole)
+
+        elif type(btn) == QDialogButtonBox.StandardButton:
+            dlgBtnBox.addButton(btn)
+
+        else:
+            raise ValueError("Unexpected argument.")
+
+    if acceptedFunc is not None:
+        func_accept = acceptedFunc[0]
+        kwargs_accept: dict = acceptedFunc[1]
+
+        dlgBtnBox.accepted.connect(lambda: func_accept(**kwargs_accept))
+
+    if rejectedFunc is not None:
+        func_reject = rejectedFunc[0]
+        kwargs_reject: dict = rejectedFunc[1]
+
+        dlgBtnBox.rejected.connect(lambda: func_reject(**kwargs_reject))
+
+    return dlgBtnBox
+
+
 def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout, Tuple[int, int]]]):
     """
     Creates a ``Qt.QGridLayout`` with the passed arguments and returns it.
@@ -525,11 +558,14 @@ class MainWindow(QMainWindow):
                 fontSize=11
             )
 
-            self.dlgNewTextBtnBox = QDialogButtonBox()
-            self.dlgNewTextBtnBox.addButton("Create && Save", QDialogButtonBox.AcceptRole)
-            self.dlgNewTextBtnBox.addButton("Cancel", QDialogButtonBox.RejectRole)
-            self.dlgNewTextBtnBox.accepted.connect(lambda: self.on_btns_newtext_pressed(QDialogButtonBox.Save))
-            self.dlgNewTextBtnBox.rejected.connect(lambda: self.on_btns_newtext_pressed(QDialogButtonBox.Cancel))
+            self.dlgNewTextBtnBox = createDialogButtonBox(
+                [
+                    ("Create && Save", QDialogButtonBox.AcceptRole),
+                    ("Cancel", QDialogButtonBox.RejectRole)
+                ],
+                (self.on_btns_newtext_pressed, {'btn': QDialogButtonBox.Save}),
+                (self.on_btns_newtext_pressed, {'btn': QDialogButtonBox.Cancel})
+            )
 
             emptyTextLabel = createLabelText("")
 
