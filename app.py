@@ -321,9 +321,9 @@ def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, 
     y = size[1]
     dlg.setFixedSize(x, y)
     dlg.setWindowTitle(winTitle)
+    dlg.setLayout(layout)
 
     return dlg
-
 
 def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout, Tuple[int, int]]]):
     """
@@ -483,6 +483,7 @@ class MainWindow(QMainWindow):
     def on_tab_changed(self):
         updateEditorTable(self.tableWidget, self.tabs)
 
+
     # **************************************** EDITOR TAB *******************************************
 
     def on_btn_editor_new_pressed(self):
@@ -490,8 +491,8 @@ class MainWindow(QMainWindow):
         with open("./json/texts.json", "r") as fdata:
             data = json.load(fdata)
 
-        if len(data.keys()) >= 0:
-            createMessageBox(self, "New Text", "Maximum reached!", [QMessageBox.Ok],asd, QMessageBox.Critical)
+        if len(data.keys()) >= 19:
+            createMessageBox(self, "New Text", "Maximum reached!", [QMessageBox.Ok], QMessageBox.Critical)
 
         else:
             titleWidget = createLabelText("New Text", fontSize=18, bold=True, underline=True)
@@ -544,8 +545,7 @@ class MainWindow(QMainWindow):
                 (self.dlgNewTextBtnBox, (1, 6)),
             )
 
-            self.dlgNewText = createDialog(self, (500, 280), "New Text", [Qt.WindowSystemMenuHint, Qt.WindowTitleHint, Qt.WindowCloseButtonHint])
-            self.dlgNewText.setLayout(layout)
+            self.dlgNewText = createDialog(self, (500, 280), "New Text", [Qt.WindowSystemMenuHint, Qt.WindowTitleHint, Qt.WindowCloseButtonHint], layout)
             self.dlgNewText.exec()
 
 
