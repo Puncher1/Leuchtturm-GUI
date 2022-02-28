@@ -22,6 +22,14 @@ from PyQt5.QtGui import QPalette, QColor, QIcon, QPixmap, QFont
 
 
 def getLocalDatetime(tz_str: str):
+    """
+    Returns the local datetime from a specific timezone.
+
+    :param tz_str: The timezone: str
+
+    :return: The datetime object of the specific timezone: datetime.datetime
+    """
+
     tz = pytz.timezone(tz_str)
     utc_dt = datetime.datetime.utcnow()
     tz_dtOffset = utc_dt.astimezone(tz)
@@ -36,6 +44,7 @@ def getLocalDatetime(tz_str: str):
 def on_error(exc_type, exc_error, exc_tb):
     """
     Global error handler which executes a ``Qt.QMessageBox`` with the traceback.
+    By clicking the 'Ok' button or closing the traceback window will exit the program.
     """
 
     lines = traceback.format_exception(exc_type, exc_error, exc_tb)
@@ -386,9 +395,6 @@ def createComboBox(items: List[str]):
 
     return comboBox
 
-# Alias for 'createComboBox'
-createDropdown = createComboBox
-
 
 def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout, Tuple[int, int]]]):
     """
@@ -411,6 +417,7 @@ def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout
             layout.addWidget(target, y, x)
 
     return layout
+
 
 def updateEditorTable(table: QTableWidget, tabs: QTabWidget):
     """
