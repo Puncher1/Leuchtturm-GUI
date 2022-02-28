@@ -70,8 +70,9 @@ stdFontSize = 10
 
 """
 TODO:
-- pass arguments to connect function instead of use self
 - create functions for things
+- comment on_... functions
+- Functions in different files
 - run tab
 
 """
@@ -367,6 +368,28 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
     return dlgBtnBox
 
 
+def createComboBox(items: List[str]):
+    """
+    Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
+
+    :param items: The items which should be added to the dropdown: List[str]
+
+    :return: The dropdown: Qt.QComboBox
+    """
+
+    for item in items:
+        if type(item) != str:
+            raise TypeError(f"Unexpected type '{item.__class__.__name__}'")
+
+    comboBox = QComboBox()
+    comboBox.addItems(items)
+
+    return comboBox
+
+# Alias for 'createComboBox'
+createDropdown = createComboBox
+
+
 def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout, Tuple[int, int]]]):
     """
     Creates a ``Qt.QGridLayout`` with the passed arguments and returns it.
@@ -569,10 +592,10 @@ class MainWindow(QMainWindow):
 
             self.dlgNewTextBtnBox = createDialogButtonBox(
                 [
-                    1,
+                    ("Create && Save", QDialogButtonBox.AcceptRole),
                     ("Cancel", QDialogButtonBox.RejectRole)
                 ],
-                (self.on_btns_newtext_pressed, {'asd': QDialogButtonBox.Save}),
+                (self.on_btns_newtext_pressed, {'btn': QDialogButtonBox.Save}),
                 (self.on_btns_newtext_pressed, {'btn': QDialogButtonBox.Cancel})
             )
 
@@ -590,7 +613,9 @@ class MainWindow(QMainWindow):
                 (self.dlgNewTextBtnBox, (1, 6)),
             )
 
-            self.dlgNewText = createDialog(self, (500, 280), "New Text", [Qt.WindowSystemMenuHint, Qt.WindowTitleHint, Qt.WindowCloseButtonHint], layout)
+            self.dlgNewText = createDialog(self, (500, 280), "New Text",
+                                           [Qt.WindowSystemMenuHint, Qt.WindowTitleHint, Qt.WindowCloseButtonHint],
+                                           layout)
             self.dlgNewText.exec()
 
 
@@ -602,24 +627,22 @@ class MainWindow(QMainWindow):
                 createMessageBox(self, "Delete Text", "No texts existing!", [QMessageBox.Ok], QMessageBox.Critical)
 
             else:
-                self.dlgDelText = QDialog(self, Qt.WindowSystemMenuHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
-                self.dlgDelText.setFixedSize(500, 180)
-                self.dlgDelText.setWindowTitle("Delete Text")
-
                 titleWidget = createLabelText("Delete Text", fontSize=18, bold=True, underline=True)
                 descWidget = createLabelText(
                     "Please choose the text you want to delete below.",
                     fontSize=11
                 )
 
-                self.delDropdownWidget = QComboBox()
-                self.delDropdownWidget.addItems(data.keys())
+                self.delDropdownWidget = createDropdown(data.keys())
 
-                self.dlgDelTextBtnBox = QDialogButtonBox()
-                self.dlgDelTextBtnBox.addButton("Delete && Save", QDialogButtonBox.AcceptRole)
-                self.dlgDelTextBtnBox.addButton("Cancel", QDialogButtonBox.RejectRole)
-                self.dlgDelTextBtnBox.accepted.connect(lambda: self.on_btns_deltext_pressed(QDialogButtonBox.Save))
-                self.dlgDelTextBtnBox.rejected.connect(lambda: self.on_btns_deltext_pressed(QDialogButtonBox.Cancel))
+                self.dlgDelTextBtnBox = createDialogButtonBox(
+                    [
+                        ("Delete && Save", QDialogButtonBox.AcceptRole),
+                        ("Cancel", QDialogButtonBox.RejectRole)
+                    ],
+                    (self.on_btns_deltext_pressed, {'btn': QDialogButtonBox.Save}),
+                    (self.on_btns_deltext_pressed, {'btn': QDialogButtonBox.Cancel})
+                )
 
                 layout = createGridLayout(
                     (titleWidget, (0, 0)),
@@ -628,7 +651,9 @@ class MainWindow(QMainWindow):
                     (self.dlgDelTextBtnBox, (1, 3))
                 )
 
-                self.dlgDelText.setLayout(layout)
+                self.dlgDelText = createDialog(self, (500, 180), "Delete Text",
+                                               [Qt.WindowSystemMenuHint, Qt.WindowTitleHint, Qt.WindowCloseButtonHint],
+                                               layout)
                 self.dlgDelText.exec()
 
 
