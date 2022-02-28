@@ -24,7 +24,6 @@ TODO:
 
 
 # Main
-
 class MainWindow(QMainWindow):
     """
     The main window of the application.
@@ -88,6 +87,8 @@ class MainWindow(QMainWindow):
             (buttonLayout, (5, 1)),
             (self.tableWidget, (0, 2))
         )
+
+
 
         editorWidget = QWidget()
         editorWidget.setLayout(editorLayout)
