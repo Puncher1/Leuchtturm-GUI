@@ -5,6 +5,8 @@ from events.editor import EditorEvents
 from events.error_handler import on_error
 from utils.utils import *
 
+from PyQt5 import uic
+
 
 # Program init
 basedir = os.path.dirname(__file__)
@@ -22,6 +24,22 @@ TODO:
 
 """
 
+class Color(QWidget):
+
+    def __init__(self, color):
+        super(Color, self).__init__()
+        self.setAutoFillBackground(True)
+
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor(color))
+        self.setPalette(palette)
+
+class MainWidget(QWidget):
+
+    def __init__(self):
+        super(MainWidget, self).__init__()
+
+        uic.loadUi("./leuchtturm.ui", self)
 
 # Main
 class MainWindow(QMainWindow):
@@ -43,60 +61,122 @@ class MainWindow(QMainWindow):
 
         titleWidget = createLabelText("Editor", fontSize=18, bold=True, underline=True)
 
-        descWidget = createLabelText(
+        editorDescWidget = createLabelText(
             "Here, you can add your pre-created texts which you can then simply select and send to the dot-matrix display "
             "(even if the program has restarted).",
             fontSize=11
         )
 
-        descWidget.setWordWrap(True)
-        descWidget.setFixedSize(590, 50)
+        editorDescWidget.setWordWrap(True)
+        editorDescWidget.setFixedSize(590, 50)
 
         self.tableWidget = createTable(20, 2, [(0, 100), (1, 475)], False, True, False, True, True)
 
         buttonNew = createPushButton(
             text="New",
-            buttonSize=(25, 50),
+            buttonSize=(50, 25),
             fontSize=11,
             func=self.editor.on_btnNew_pressed
         )
 
         buttonDel = createPushButton(
             text="Del",
-            buttonSize=(25, 50),
+            buttonSize=(50, 25),
             fontSize=11,
             func=self.editor.on_btnDel_pressed
         )
 
         buttonClear = createPushButton(
             text="Clear",
-            buttonSize=(25, 50),
+            buttonSize=(50, 25),
             fontSize=11,
             func=self.editor.on_btnClear_pressed
         )
 
-        buttonLayout = createGridLayout(
-            (buttonNew, (1, 0)),
-            (buttonDel, (1, 1)),
-            (buttonClear, (1, 2))
+        # buttonLayout = createGridLayout(
+        #     (buttonNew, (1, 0)),
+        #     (buttonDel, (1, 1)),
+        #     (buttonClear, (1, 2))
+        # )
+        #
+        # editorLayout = createGridLayout(
+        #     (titleWidget, (0, 0)),
+        #     (editorDescWidget, (0, 1)),
+        #     (buttonLayout, (5, 1)),
+        #     (self.tableWidget, (0, 2))
+        # )
+
+        # editorWidget = QWidget()
+        # editorWidget.setLayout(editorLayout)
+
+        runWidget = QWidget()
+
+        displayTitle = createLabelText(
+            "Dot-Matrix Display",
+            fontSize=11,
+            bold=True,
+            rect=(50, 70, 141, 21),
+            parent=runWidget
         )
 
-        editorLayout = createGridLayout(
-            (titleWidget, (0, 0)),
-            (descWidget, (0, 1)),
-            (buttonLayout, (5, 1)),
-            (self.tableWidget, (0, 2))
+        displayBtn_ONOFF = createPushButton(
+            (55, 25),
+            "ON/OFF",
+            fontSize=10,
+            rect=(20, 110, 71, 31),
+            parent=runWidget,
+            func=None       # TODO
         )
 
+        displayBtn_UpdateText = createPushButton(
+            (75, 25),
+            "Update text",
+            fontSize=10,
+            rect=(120, 110, 101, 31),
+            parent=runWidget,
+            func=None       # TODO
+        )
 
+        runningLightTitle = createLabelText(
+            text="Running Light",    # TODO: size overwrites rect size --> maybe dynamic?
+            fontSize=11,
+            bold=True,
+            rect=(530, 80, 111, 21),
+            parent=runWidget
+        )
 
-        editorWidget = QWidget()
-        editorWidget.setLayout(editorLayout)
+        runningLightBtn_ONOFF = createPushButton(
+            (55, 25),
+            "ON/OFF",
+            fontSize=10,
+            rect=(540, 110, 71, 31),
+            parent=runWidget,
+            func=None       # TODO
+        )
+
+        runningLightSpeed_Slider = createSlider(
+            (25, 100),
+            minVal=1,
+            maxVal=100,
+            singleStep=1,
+            orientation=Qt.Vertical,
+            rect=(590, 160, 21, 160),
+            parent=runWidget,
+            func=None   # TODO
+        )
+
+        runningLightSpeed_Label = createLabelText(
+            "Speed",
+            fontSize=10,
+            rect=(540, 195, 31, 21),
+            parent=runWidget
+        )
+
 
         self.tabs = createTab(
             [
-                (QLabel("Hallo"), QIcon("utils/images/icons/execute_dark.png"), "Run"),
-                (editorWidget, QIcon("utils/images/icons/notebook.png"), "Editor")
+                (runWidget, QIcon("utils/images/icons/execute_dark.png"), "Run"),
+                # (editorWidget, QIcon("utils/images/icons/notebook.png"), "Editor")
             ],
             self.on_tab_changed
         )
