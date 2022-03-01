@@ -1,14 +1,51 @@
 from PyQt5.Qt import *
-from typing import Tuple, Any, List, Union, Callable, Dict
+from typing import Tuple, Any, List, Union, Callable, Dict, Optional
 import functools
 import json
 
 # constants
 STD_FONT = "Calibri"
 STD_FONTSIZE = 10
+HINT_gridLayout = Union[
+    Union[
+        Tuple[
+            QWidget,
+            Union[
+                Tuple[int, int],                    # Tuple[x, y]
+                Tuple[int, int, int, int]           # Tuple[x, y, rowSpawn, columnSpawn]
+            ]
+        ],
+        Tuple[
+            QWidget,
+            Union[
+                Tuple[int, int],                    # Tuple[x, y]
+                Tuple[int, int, int, int]           # Tuple[x, y, rowSpawn, columnSpawn]
+            ],
+            Qt.Alignment
+        ]
+    ],
+    Union[
+        Tuple[
+            QLayout,
+            Union[
+                Tuple[int, int],                    # Tuple[x, y]
+                Tuple[int, int, int, int]           # Tuple[x, y, rowSpawn, columnSpawn]
+            ]
+        ],
+        Tuple[
+            QLayout,
+            Union[
+                Tuple[int, int],                    # Tuple[x, y]
+                Tuple[int, int, int, int]           # Tuple[x, y, rowSpawn, columnSpawn]
+            ],
+            Qt.Alignment
+        ]
+    ],
+]
 
-
-def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE, bold: bool = False, underline: bool = False, italic: bool = False) -> QLabel:
+def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
+                    bold: bool = False, underline: bool = False, italic: bool = False, rect: Tuple[int, int, int, int] = None,
+                    parent: QWidget = None):
     """
     Creates a ``Qt.QLabel`` with the passed arguments and returns it.
 
@@ -19,6 +56,7 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
     :param bold: Whether the text should be bold or not (default to False); bool
     :param underline: Whether the text should be underlined or not (default to False); bool
     :param italic: Whether the text should be italic or not (default to False); bool
+
     :return: The Label: Qt.QLabel
     """
 
@@ -35,17 +73,24 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
 
     label = QLabel()
 
+    if parent is not None:
+        label.setParent(parent)
+
     if size is not None:
         label.setFixedSize(size[0], size[1])
 
     label.setText(text)
     label.setFont(textFont)
 
+    if rect is not None:
+        label.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
+
     return label
 
 
-def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE, bold: bool = False, underline: bool = False, italic: bool = False,
-                     image: Tuple[str, Tuple[int, int]] = None, func: Callable = None) -> QPushButton:
+def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
+                     bold: bool = False, underline: bool = False, italic: bool = False, image: Tuple[str, Tuple[int, int]] = None,
+                     func: Callable = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QPushButton`` with the passed arguments and returns it.
 
@@ -67,7 +112,11 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
         exit()
 
     button = QPushButton()
-    button.setFixedSize(buttonSize[1], buttonSize[0])
+
+    if parent is not None:
+        button.setParent(parent)
+
+    button.setFixedSize(buttonSize[0], buttonSize[1])
 
     if image is None:
         textFont = QFont(font, fontSize)
@@ -96,13 +145,17 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
             button.setIcon(QIcon(image_path, text))
             button.setIconSize(QSize(x, y))
 
+    if rect is not None:
+        button.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
+
     if func is not None:
         button.clicked.connect(func)
 
     return button
 
 
-def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE) -> QLineEdit:
+def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: str = None, font: str = STD_FONT,
+                   fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QLineEdit`` with the passed arguments and returns it.
 
@@ -119,9 +172,15 @@ def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: st
 
     textField = QLineEdit()
 
+    if parent is not None:
+        textField.setParent(parent)
+
     textField.setMaxLength(maxLength)
     textField.setPlaceholderText(placeholder)
     textField.setFont(textFont)
+
+    if rect is not None:
+        textField.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
 
     if size is not None:
         textField.setFixedSize(size[0], size[1])
@@ -131,7 +190,7 @@ def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: st
 
 def createTable(rowCount: int, colCount: int, colsWidth: List[Tuple[int, int]] = None, isCellSelection: bool = True,
                 isRowSelection: bool = True, isEditingTrigger: bool = True, isHHeaderFixed: bool = False,
-                isVHeaderFixed: bool = False):
+                isVHeaderFixed: bool = False, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QTableWidget`` with the passed arguments and returns it.
 
@@ -148,6 +207,10 @@ def createTable(rowCount: int, colCount: int, colsWidth: List[Tuple[int, int]] =
     """
 
     table = QTableWidget()
+
+    if parent is not None:
+        table.setParent(parent)
+
     table.setRowCount(rowCount)
     table.setColumnCount(colCount)
 
@@ -174,10 +237,14 @@ def createTable(rowCount: int, colCount: int, colsWidth: List[Tuple[int, int]] =
         tableVHeader = table.verticalHeader()
         tableVHeader.setSectionResizeMode(QHeaderView.Fixed)
 
+    if rect is not None:
+        table.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
+
     return table
 
 
-def createTab(tabs: List[Tuple[Any, Union[QIcon, None], str]], func: Callable = None):
+def createTab(tabs: List[Tuple[Any, Union[QIcon, None], str]], func: Callable = None,
+              rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QTabWidget`` with the passed arguments and returns it.
 
@@ -189,12 +256,18 @@ def createTab(tabs: List[Tuple[Any, Union[QIcon, None], str]], func: Callable = 
 
     tabWidget = QTabWidget()
 
+    if parent is not None:
+        tabWidget.setParent(parent)
+
     for tab in tabs:
         widget = tab[0]
         icon = tab[1]
         label = tab[2]
 
         tabWidget.addTab(widget, icon, label)
+
+    if rect is not None:
+        tabWidget.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
 
     if func is not None:
         tabWidget.currentChanged.connect(func)
@@ -296,7 +369,7 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
     return dlgBtnBox
 
 
-def createComboBox(items: List[str]):
+def createComboBox(items: List[str], rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
 
@@ -310,30 +383,128 @@ def createComboBox(items: List[str]):
             raise TypeError(f"Unexpected type '{item.__class__.__name__}'")
 
     comboBox = QComboBox()
+
+    if parent is not None:
+        comboBox.setParent(parent)
+
     comboBox.addItems(items)
+
+    if rect is not None:
+        comboBox.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
 
     return comboBox
 
 
-def createGridLayout(*args: Union[Tuple[QWidget, Tuple[int, int]], Tuple[QLayout, Tuple[int, int]]]):
+def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: int, orientation: Qt.Orientation, func: Callable = None,
+                 rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+    """
+    Creates a ``Qt.QSlider`` with the passed arguments and returns it.
+
+    :param size: The size of the slider: Tuple[x: int, y: int]
+    :param minVal: The minimum value of the slider: int
+    :param maxVal: The maximum value of the slider: int
+    :param singleStep: The single step size: int
+    :param func: The function which gets called when the slider value has changed, default to None: Callable
+
+    :return: The slider: Qt.QSlider
+    """
+
+    slider = QSlider()
+
+    if parent is not None:
+        slider.setParent(parent)
+
+    slider.setFixedSize(size[0], size[1])
+    slider.setMinimum(minVal)
+    slider.setMaximum(maxVal)
+    slider.setSingleStep(singleStep)
+    slider.setOrientation(orientation)
+
+    if rect is not None:
+        slider.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
+
+    if func is not None:
+        slider.valueChanged.connect(func)
+
+    return slider
+
+
+def createGridLayout(*items: HINT_gridLayout, margins: Union[Tuple[int, int, int, int], QMargins] = None):
     """
     Creates a ``Qt.QGridLayout`` with the passed arguments and returns it.
 
-    :param args: The target/s which should be placed into the layout; Union[Tuple[QWidget, Tuple[x: int, y: int]], Tuple[QLayout, Tuple[x: int, y: int]]]
+    :param margins: KWARG
+    :param args: The target/s which should be placed into the layout: Union[Tuple[QWidget, Tuple[x: int, y: int], Union[alignment: Qt.Alignment, None]], Tuple[QLayout, Tuple[x: int, y: int], Union[alignment: Qt.Alignment, None]]]
     :return: The grid layout: Qt.QGridLayout
     """
 
     layout = QGridLayout()
 
-    for arg in args:
-        target = arg[0]
-        x = arg[1][0]
-        y = arg[1][1]
+    if margins is not None:
+        if type(margins) == QMargins:
+            layout.setContentsMargins(margins)
 
-        if "layout" in target.__class__.__name__.lower():
-            layout.addLayout(target, y, x)
         else:
-            layout.addWidget(target, y, x)
+            left = margins[0]
+            top = margins[1]
+            right = margins[2]
+            bottom = margins[3]
+            layout.setContentsMargins(left, top, right, bottom)
+
+    for item in items:
+        target = item[0]
+        dimensions = item[1]
+        x = dimensions[0]
+        y = dimensions[1]
+
+        if len(item) < 3:
+            if len(dimensions) < 3:
+                if "layout" in target.__class__.__name__.lower():
+                    layout.addLayout(target, y, x)
+
+                elif type(target) == QSpacerItem:
+                    layout.addItem(target, y, x)
+
+                else:
+                    layout.addWidget(target, y, x)
+            else:
+                rowSpawn = dimensions[2]
+                colSpawn = dimensions[3]
+
+                if "layout" in target.__class__.__name__.lower():
+                    layout.addLayout(target, y, x, rowSpawn, colSpawn)
+
+                elif type(target) == QSpacerItem:
+                    layout.addItem(target, y, x, rowSpawn, colSpawn)
+
+                else:
+                    layout.addWidget(target, y, x, rowSpawn, colSpawn)
+
+        else:
+            alignment = item[2]
+
+            if len(dimensions) < 3:
+                if "layout" in target.__class__.__name__.lower():
+                    layout.addLayout(target, y, x, alignment=alignment)
+
+                elif type(target) == QSpacerItem:
+                    layout.addItem(target, y, x, alignment=alignment)
+
+                else:
+                    layout.addWidget(target, y, x, alignment=alignment)
+            else:
+                rowSpawn = dimensions[2]
+                colSpawn = dimensions[3]
+
+                if "layout" in target.__class__.__name__.lower():
+                    layout.addLayout(target, y, x, rowSpawn, colSpawn, alignment=alignment)
+
+                elif type(target) == QSpacerItem:
+                    layout.addItem(target, y, x, rowSpawn, colSpawn, alignment=alignment)
+
+                else:
+                    layout.addWidget(target, y, x, rowSpawn, colSpawn, alignment=alignment)
+
 
     return layout
 
