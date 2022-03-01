@@ -190,7 +190,8 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
 
 
 def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: str = None, font: str = STD_FONT,
-                   fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+                   fontSize: int = STD_FONTSIZE, isReadOnly: bool = False, rect: Tuple[int, int, int, int] = None,
+                   parent: QWidget = None):
     """
     Creates a ``Qt.QLineEdit`` with the passed arguments and returns it.
 
@@ -213,6 +214,9 @@ def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: st
     textField.setMaxLength(maxLength)
     textField.setPlaceholderText(placeholder)
     textField.setFont(textFont)
+
+    if isReadOnly:
+        textField.setReadOnly(True)
 
     if rect is not None:
         textField.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))

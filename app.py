@@ -17,29 +17,13 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
 """
 TODO:
-- create functions for things (done for editor tab)
-- comment on_... functions
-- Functions in different files
 - run tab
+- create functions for things (if needed, done for editor tab)
+- docstrings update for utils functions
+- docstrings on_... functions
 
 """
 
-class Color(QWidget):
-
-    def __init__(self, color):
-        super(Color, self).__init__()
-        self.setAutoFillBackground(True)
-
-        palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
-        self.setPalette(palette)
-
-class MainWidget(QWidget):
-
-    def __init__(self):
-        super(MainWidget, self).__init__()
-
-        uic.loadUi("./leuchtturm.ui", self)
 
 # Main
 class MainWindow(QMainWindow):
@@ -93,63 +77,81 @@ class MainWindow(QMainWindow):
             func=self.editor.on_btnClear_pressed
         )
 
-        # buttonLayout = createGridLayout(
-        #     (buttonNew, (1, 0)),
-        #     (buttonDel, (1, 1)),
-        #     (buttonClear, (1, 2))
-        # )
-        #
-        # editorLayout = createGridLayout(
-        #     (titleWidget, (0, 0)),
-        #     (editorDescWidget, (0, 1)),
-        #     (buttonLayout, (5, 1)),
-        #     (self.tableWidget, (0, 2))
-        # )
+        buttonLayout = createGridLayout(
+            (buttonNew, (1, 0)),
+            (buttonDel, (1, 1)),
+            (buttonClear, (1, 2))
+        )
 
-        # editorWidget = QWidget()
-        # editorWidget.setLayout(editorLayout)
+        editorLayout = createGridLayout(
+            (titleWidget, (0, 0)),
+            (editorDescWidget, (0, 1)),
+            (buttonLayout, (5, 1)),
+            (self.tableWidget, (0, 2))
+        )
+
+        editorWidget = QWidget()
+        editorWidget.setLayout(editorLayout)
 
         runWidget = QWidget()
 
+        runTitle = createLabelText(
+            "Run",
+            fontSize=18,
+            bold=True,
+            underline=True,
+            rect=(10, 0, 300, 45),
+            parent=runWidget
+        )
+
+        tabHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        runDescription = createLabelText(
+            "Here, you can change the dot-matrix display."
+            "<br>Select a text at <i><b>Pre-created Texts</b></i> and press <b><i>Update text</i></b> to display a text.",
+            fontSize=11,
+            rect=(10, 50, 500, 50),
+            parent=runWidget
+        )
+
         displayTitle = createLabelText(
             "Dot-Matrix Display",
-            fontSize=11,
+            fontSize=13,
             bold=True,
-            rect=(50, 70, 141, 21),
+            rect=(42, 140, 150, 30),
             parent=runWidget
         )
 
         displayBtn_ONOFF = createPushButton(
-            (55, 25),
+            (60, 30),
             "ON/OFF",
-            fontSize=10,
-            rect=(20, 110, 71, 31),
+            fontSize=11,
+            rect=(20, 180, 0, 0),
             parent=runWidget,
             func=None       # TODO
         )
 
         displayBtn_UpdateText = createPushButton(
-            (75, 25),
+            (85, 30),
             "Update text",
-            fontSize=10,
-            rect=(120, 110, 101, 31),
+            fontSize=11,
+            rect=(120, 180, 0, 0),
             parent=runWidget,
             func=None       # TODO
         )
 
         runningLightTitle = createLabelText(
             text="Running Light",    # TODO: size overwrites rect size --> maybe dynamic?
-            fontSize=11,
+            fontSize=13,
             bold=True,
-            rect=(530, 80, 111, 21),
+            rect=(527, 140, 150, 30),
             parent=runWidget
         )
 
         runningLightBtn_ONOFF = createPushButton(
-            (55, 25),
+            (60, 30),
             "ON/OFF",
-            fontSize=10,
-            rect=(540, 110, 71, 31),
+            fontSize=11,
+            rect=(540, 180, 71, 31),
             parent=runWidget,
             func=None       # TODO
         )
@@ -160,7 +162,7 @@ class MainWindow(QMainWindow):
             maxVal=100,
             singleStep=1,
             orientation=Qt.Vertical,
-            rect=(590, 160, 21, 160),
+            rect=(555, 230, 21, 160),
             parent=runWidget,
             func=None   # TODO
         )
@@ -168,15 +170,49 @@ class MainWindow(QMainWindow):
         runningLightSpeed_Label = createLabelText(
             "Speed",
             fontSize=10,
-            rect=(540, 195, 31, 21),
+            rect=(510, 265, 31, 21),
             parent=runWidget
         )
 
+        precreatedTextsTitle = createLabelText(
+            "Pre-created Texts",
+            fontSize=13,
+            bold=True,
+            rect=(40, 280, 130, 21),
+            parent=runWidget
+        )
+
+        with open("./utils/json/texts.json", "r") as fdata:
+            data = json.load(fdata)
+
+        pecreatedTexts_Dropdown = createComboBox(
+            items=list(data.keys()),
+            fontSize=11,
+            placeholder="Select text",
+            rect=(40, 310, 151, 23),
+            parent=runWidget
+        )
+
+        currentTextTitle = createLabelText(
+            "Current Text",
+            fontSize=13,
+            bold=True,
+            rect=(40, 360, 121, 23),
+            parent=runWidget
+        )
+
+        currentText_LineEdit = createLineEdit(
+            10,
+            placeholder="No text showing",
+            fontSize=11,
+            rect=(40, 390, 151, 22),
+            parent=runWidget
+        )
 
         self.tabs = createTab(
             [
                 (runWidget, QIcon("utils/images/icons/execute_dark.png"), "Run"),
-                # (editorWidget, QIcon("utils/images/icons/notebook.png"), "Editor")
+                (editorWidget, QIcon("utils/images/icons/notebook.png"), "Editor")
             ],
             self.on_tab_changed
         )
@@ -189,6 +225,7 @@ class MainWindow(QMainWindow):
 
 
 app = QApplication([])
+# app.setStyle("Fusion")
 app.setWindowIcon(QIcon(os.path.join(basedir, 'utils/images/leuchtturm.ico')))
 
 sys.excepthook = on_error
