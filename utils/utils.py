@@ -1,3 +1,4 @@
+import PyQt5.QtWidgets
 from PyQt5.Qt import *
 from typing import Tuple, Any, List, Union, Callable, Dict, Optional
 import functools
@@ -42,6 +43,40 @@ HINT_gridLayout = Union[
         ]
     ],
 ]
+
+# Overwrites
+
+class QComboBox(QComboBox):
+    """
+    @Overwrite
+
+    Due of a bug in the library, ``Qt.QComboBox`` gets overwritten to show a placeholder at combo boxes.
+    Inherits from ``Qt.QComboBox``
+    """
+
+    def paintEvent(self, event):
+
+        painter = QStylePainter(self)
+        painter.setPen(self.palette().color(QPalette.Text))
+
+        # draw the combobox frame, focusrect and selected etc.
+        opt = QStyleOptionComboBox()
+        self.initStyleOption(opt)
+        painter.drawComplexControl(QStyle.CC_ComboBox, opt)
+
+        if self.currentIndex() < 0:
+            opt.palette.setBrush(
+                QPalette.ButtonText,
+                opt.palette.brush(QPalette.ButtonText).color().lighter()
+            )
+
+            if self.placeholderText():
+                opt.currentText = self.placeholderText()
+
+        # draw the icon and text
+        painter.drawControl(QStyle.CE_ComboBoxLabel, opt)
+
+
 
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                     bold: bool = False, underline: bool = False, italic: bool = False, rect: Tuple[int, int, int, int] = None,
@@ -369,7 +404,7 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
     return dlgBtnBox
 
 
-def createComboBox(items: List[str], rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+def createComboBox(items: List[str], placeholder: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None, parent: QWidget = None): # TODO: size
     """
     Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
 
@@ -383,6 +418,9 @@ def createComboBox(items: List[str], rect: Tuple[int, int, int, int] = None, par
             raise TypeError(f"Unexpected type '{item.__class__.__name__}'")
 
     comboBox = QComboBox()
+    font = QFont(font, fontSize)
+    comboBox.setFont(font)
+
 
     if parent is not None:
         comboBox.setParent(parent)
@@ -391,6 +429,10 @@ def createComboBox(items: List[str], rect: Tuple[int, int, int, int] = None, par
 
     if rect is not None:
         comboBox.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
+
+    if placeholder is not None:
+        comboBox.setPlaceholderText(placeholder)
+        comboBox.setCurrentIndex(-1)
 
     return comboBox
 
