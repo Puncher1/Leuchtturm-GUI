@@ -9,7 +9,7 @@ class EditorEvents:
 
 
     def on_btnNew_pressed(self):
-        with open("./utils/json/texts.json", "r") as fdata:
+        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
             data = json.load(fdata)
 
         if len(data.keys()) >= 19:
@@ -77,7 +77,7 @@ class EditorEvents:
 
 
     def on_btnDel_pressed(self):
-        with open("./utils/json/texts.json", "r") as fdata:
+        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
             data = json.load(fdata)
 
             if len(data.keys()) == 0:
@@ -115,7 +115,7 @@ class EditorEvents:
 
 
     def on_btnClear_pressed(self):
-        with open("./utils/json/texts.json", "r") as fdata:
+        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
             data = json.load(fdata)
 
             if len(data.keys()) == 0:
@@ -145,13 +145,13 @@ class EditorEvents:
                                  [QMessageBox.Ok], QMessageBox.Critical)
             else:
 
-                with open("./utils/json/texts.json", "r") as fdata:
+                with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
                     data = json.load(fdata)
 
                     if label not in data.keys():
                         data[label] = text
 
-                        with open("./utils/json/texts.json", "w+") as fdata:
+                        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "w+") as fdata:
                             json.dump(data, fdata, sort_keys=True, indent=4)
 
                         updateEditorTable(self.mainWindow.tableWidget, self.mainWindow.tabs)
@@ -163,7 +163,7 @@ class EditorEvents:
                     else:
                         createMessageBox(self.mainWindow, "Error!", "This label already exists, please try again..",
                                          [QMessageBox.Ok], QMessageBox.Critical)
-                        with open("./utils/json/texts.json", "w+") as fdata:
+                        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "w+") as fdata:
                             json.dump(data, fdata, sort_keys=True, indent=4)
 
 
@@ -178,10 +178,10 @@ class EditorEvents:
         if btn == QDialogButtonBox.Save:
             selectedLabel = self.mainWindow.delDropdownWidget.currentText()
 
-            with open("./utils/json/texts.json", "r") as fdata:
+            with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
                 data = json.load(fdata)
                 del data[selectedLabel]
-                with open("./utils/json/texts.json", "w+") as fdata:
+                with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
 
                 updateEditorTable(self.mainWindow.tableWidget, self.mainWindow.tabs)
@@ -197,9 +197,9 @@ class EditorEvents:
         btnName = btnName.strip("&")
 
         if btnName == "Yes":
-            with open("./utils/json/texts.json", "r") as fdata:
+            with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
                 data = {}
-                with open("./utils/json/texts.json", "w+") as fdata:
+                with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
 
                 updateEditorTable(self.mainWindow.tableWidget, self.mainWindow.tabs)

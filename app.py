@@ -7,7 +7,6 @@ from utils.utils import *
 
 from PyQt5 import uic
 
-
 # Program init
 basedir = os.path.dirname(__file__)
 
@@ -38,7 +37,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Leuchtturm")
         self.setFixedSize(700, 500)
-        self.setWindowIcon(QIcon("utils/images/lighthouse.png"))
+        self.setWindowIcon(QIcon("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/lighthouse.png"))
 
         windowFont = QFont("Calibri", 10)
         self.setFont(windowFont)
@@ -182,7 +181,7 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
-        with open("./utils/json/texts.json", "r") as fdata:
+        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
             data = json.load(fdata)
 
         pecreatedTexts_Dropdown = createComboBox(
@@ -211,8 +210,8 @@ class MainWindow(QMainWindow):
 
         self.tabs = createTab(
             [
-                (runWidget, QIcon("utils/images/icons/execute_dark.png"), "Run"),
-                (editorWidget, QIcon("utils/images/icons/notebook.png"), "Editor")
+                (runWidget, QIcon("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/icons/execute_dark.png"), "Run"),
+                (editorWidget, QIcon("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/icons/notebook.png"), "Editor")
             ],
             self.on_tab_changed
         )
@@ -226,7 +225,7 @@ class MainWindow(QMainWindow):
 
 app = QApplication([])
 # app.setStyle("Fusion")
-app.setWindowIcon(QIcon(os.path.join(basedir, 'utils/images/leuchtturm.ico')))
+app.setWindowIcon(QIcon(os.path.join(basedir, 'C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/leuchtturm.ico')))
 
 sys.excepthook = on_error
 

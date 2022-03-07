@@ -585,7 +585,7 @@ def updateEditorTable(table: QTableWidget, tabs: QTabWidget):
         table.setItem(0, 0, stdLabelItem)
         table.setItem(0, 1, stdTextItem)
 
-        with open("./utils/json/texts.json", "r") as fdata:
+        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
             data = json.load(fdata)
 
         col = 0
