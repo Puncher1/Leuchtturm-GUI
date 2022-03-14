@@ -155,7 +155,7 @@ class EditorEvents:
                         with open(Path.json_Texts, "w+") as fdata:
                             json.dump(data, fdata, sort_keys=True, indent=4)
 
-                        updateEditorTable(self.mainWindow.tableWidget, self.mainWindow.tabs)
+                        updateEditorTable(self.mainWindow.tableWidget)
                         self.mainWindow.dlgNewText.close()
                         createMessageBox(self.mainWindow, "New Text", "Your text has been created!", [QMessageBox.Ok],
                                          QMessageBox.Information)
@@ -185,7 +185,7 @@ class EditorEvents:
                 with open(Path.json_Texts, "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
 
-                updateEditorTable(self.mainWindow.tableWidget, self.mainWindow.tabs)
+                updateEditorTable(self.mainWindow.tableWidget)
                 self.mainWindow.dlgDelText.close()
                 createMessageBox(self.mainWindow, "Delete Text", "Your text has been deleted!", [QMessageBox.Ok],
                                  QMessageBox.Information)
@@ -203,6 +203,6 @@ class EditorEvents:
                 with open(Path.json_Texts, "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
 
-                updateEditorTable(self.mainWindow.tableWidget, self.mainWindow.tabs)
+                updateEditorTable(self.mainWindow.tableWidget)
                 createMessageBox(self.mainWindow, "Clear Texts", "All texts have been deleted!", [QMessageBox.Ok],
                                  QMessageBox.Information)
