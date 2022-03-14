@@ -4,6 +4,9 @@ from typing import Tuple, Any, List, Union, Callable, Dict, Optional
 import functools
 import json
 
+from utils.common import Path
+
+
 # constants
 STD_FONT = "Calibri"
 STD_FONTSIZE = 10
@@ -124,7 +127,7 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
 
 
 def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
-                     bold: bool = False, underline: bool = False, italic: bool = False, image: Tuple[str, Tuple[int, int]] = None,
+                     textColor: str = None, bold: bool = False, underline: bool = False, italic: bool = False, image: Tuple[str, Tuple[int, int]] = None,
                      func: Callable = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QPushButton`` with the passed arguments and returns it.
@@ -164,6 +167,9 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
 
         if italic:
             textFont.setItalic(True)
+
+        if textColor:
+            button.setStyleSheet('color: #{}'.format(textColor))
 
         button.setFont(textFont)
         button.setText(text)
@@ -555,58 +561,77 @@ def createGridLayout(*items: HINT_gridLayout, margins: Union[Tuple[int, int, int
     return layout
 
 
-def updateEditorTable(table: QTableWidget, tabs: QTabWidget):
+def updateEditorTable(table: QTableWidget):
     """
     Updates the table (``Qt.QTabelWidget``) in the editor tab.
 
     :param table: The editor table; QTableWidget
-    :param tabs: The tabs; QTabWidget
     """
 
-    tabName = tabs.tabText(tabs.currentIndex())
-    if tabName == "Editor":
+    stdItemFont = QFont("Calibri", 12)
+    stdItemFont.setBold(True)
 
-        stdItemFont = QFont("Calibri", 12)
-        stdItemFont.setBold(True)
+    stdLabelItem = QTableWidgetItem()
+    stdLabelItem.setText("Label")
+    stdLabelItem.setFont(stdItemFont)
+    stdLabelItem.setTextAlignment(Qt.AlignCenter)
 
-        stdLabelItem = QTableWidgetItem()
-        stdLabelItem.setText("Label")
-        stdLabelItem.setFont(stdItemFont)
-        stdLabelItem.setTextAlignment(Qt.AlignCenter)
+    stdTextItem = QTableWidgetItem()
+    stdTextItem.setText("Text")
+    stdTextItem.setFont(stdItemFont)
+    stdTextItem.setTextAlignment(Qt.AlignCenter)
 
-        stdTextItem = QTableWidgetItem()
-        stdTextItem.setText("Text")
-        stdTextItem.setFont(stdItemFont)
-        stdTextItem.setTextAlignment(Qt.AlignCenter)
+    itemFont = QFont("Calibri", 11)
 
-        itemFont = QFont("Calibri", 11)
+    table.clear()
+    table.setItem(0, 0, stdLabelItem)
+    table.setItem(0, 1, stdTextItem)
 
-        table.clear()
-        table.setItem(0, 0, stdLabelItem)
-        table.setItem(0, 1, stdTextItem)
+    with open(Path.json_Texts, "r") as fdata:
+        data = json.load(fdata)
 
-        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
-            data = json.load(fdata)
+    col = 0
+    row = 1
+    for k, v in data.items():
+        labelItem = QTableWidgetItem()
+        labelItem.setTextAlignment(Qt.AlignCenter)
+        labelItem.setFont(itemFont)
+        labelItem.setText(k)
 
-        col = 0
-        row = 1
-        for k, v in data.items():
-            labelItem = QTableWidgetItem()
-            labelItem.setTextAlignment(Qt.AlignCenter)
-            labelItem.setFont(itemFont)
-            labelItem.setText(k)
+        textItem = QTextEdit()
+        textItem.setFont(itemFont)
+        textItem.setText(v)
+        textItem.setReadOnly(True)
+        textItem.setTextInteractionFlags(Qt.NoTextInteraction)
+        textItem.setFrameStyle(QFrame.NoFrame)
+        textItem.setAlignment(Qt.AlignCenter)
+        textItem.setFixedHeight(round(textItem.document().size().height()))
 
-            textItem = QTextEdit()
-            textItem.setFont(itemFont)
-            textItem.setText(v)
-            textItem.setReadOnly(True)
-            textItem.setTextInteractionFlags(Qt.NoTextInteraction)
-            textItem.setFrameStyle(QFrame.NoFrame)
-            textItem.setAlignment(Qt.AlignCenter)
-            textItem.setFixedHeight(round(textItem.document().size().height()))
+        table.setItem(row, col, labelItem)
+        table.setCellWidget(row, col + 1, textItem)
+        table.resizeRowsToContents()
 
-            table.setItem(row, col, labelItem)
-            table.setCellWidget(row, col + 1, textItem)
-            table.resizeRowsToContents()
+        row += 1
 
-            row += 1
+
+def updateRunDropdown(comboBox: QComboBox):
+    """
+        Updates the dropdown (``Qt.QComboBox``) to select a pre-created text in the run tab.
+
+        :param comboBox: The dropdown to select a pre-created text: QTableWidget
+        """
+
+    with open(Path.json_Texts, "r") as fdata:
+        data = json.load(fdata)
+
+    comboBox.clear()
+    comboBox.addItems(data.keys())
+
+    if len(list(data.keys())) == 0:
+        placeholder = "No texts available"
+    else:
+        placeholder = "Select text"
+
+    comboBox.setPlaceholderText(placeholder)
+    comboBox.setCurrentIndex(-1)
+
