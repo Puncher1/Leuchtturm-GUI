@@ -46,7 +46,7 @@ def on_error(exc_type, exc_error, exc_tb):
     cet_dt = __getLocalDatetime("CET")
     cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
 
-    errorFile = open(f"C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/log/error-{cet_dtString}.txt", "w+")
+    errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
     errorFile.write(full_traceback_text)
 
     msgBox.exec()
