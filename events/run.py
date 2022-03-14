@@ -52,3 +52,40 @@ class RunEvents:
             [QMessageBox.Ok],
             QMessageBox.Information
         )
+
+
+    def on_btnUpdateText_pressed(self):
+        selectedTextLabel = self.mainWindow.precreatedTexts_Dropdown.currentText()
+
+        if selectedTextLabel == "":
+            createMessageBox(
+                self.mainWindow,
+                "Update Text",
+                "No text selected, please try again.",
+                [QMessageBox.Ok],
+                QMessageBox.Critical
+            )
+
+        else:
+            with open(Path.json_Texts, "r") as fdata:
+                data = json.load(fdata)
+                selectedText = data[selectedTextLabel]
+
+            serialPort = Serial(baudrate=115200, port="COM6")
+            feedback = serialPort.serialWrite(f"update_text\n", 3)
+            print(feedback)
+
+            serialPort = Serial(baudrate=115200, port="COM6")
+            feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText))
+            print(feedback)
+
+            self.mainWindow.currentText_LineEdit.setText(selectedTextLabel)
+
+            createMessageBox(
+                self.mainWindow,
+                "Update Text",
+                f'Successfully updated the current text with the label "{selectedTextLabel}".',
+                [QMessageBox.Ok],
+                QMessageBox.Information
+            )
+
