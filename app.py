@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
             fontSize=11,
             rect=(120, 180, 0, 0),
             parent=runWidget,
-            func=None       # TODO
+            func=self.run.on_btnUpdateText_pressed
         )
 
         runningLightTitle = createLabelText(
@@ -228,12 +228,13 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
-        currentText_LineEdit = createLineEdit(
+        self.currentText_LineEdit = createLineEdit(
             10,
             placeholder="No text showing",
             fontSize=11,
             rect=(40, 390, 151, 22),
-            parent=runWidget
+            parent=runWidget,
+            isReadOnly=True
         )
 
         self.tabs = createTab(
