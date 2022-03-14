@@ -1,10 +1,14 @@
 import sys, os
 from ctypes import windll
+import time
+import serial
 
 from events.editor import EditorEvents
+from events.run import RunEvents
 from events.error_handler import on_error
 from utils.utils import *
 from utils.common import Path, Dict, Color
+from utils.serial_interface import Serial
 
 from PyQt5 import uic
 
@@ -21,6 +25,8 @@ TODO:
 - create functions for things (if needed, done for editor tab)
 - docstrings update for utils functions
 - docstrings on_... functions
+- apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
+- run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
 
 """
 
@@ -35,6 +41,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.editor = EditorEvents(self)
+        self.run = RunEvents(self)
 
         self.setWindowTitle("Leuchtturm")
         self.setFixedSize(700, 500)
@@ -135,14 +142,14 @@ class MainWindow(QMainWindow):
         else:
             raise TypeError("'displayBtn_ONOFF_label' is neither 'ON' nor 'OFF'.")
 
-        displayBtn_ONOFF = createPushButton(
+        self.displayBtn_ONOFF = createPushButton(
             (60, 30),
             displayBtn_ONOFF_label,
             fontSize=11,
             textColor=displayBtn_ONOFF_color,
             rect=(20, 180, 0, 0),
             parent=runWidget,
-            func=None       # TODO
+            func=self.run.on_btnDisplayONOFF_pressed
         )
 
         displayBtn_UpdateText = createPushButton(
@@ -257,59 +264,9 @@ sys.excepthook = on_error
 
 window = MainWindow()
 window.show()
+
 app.exec()
 
 
-# def serial_ports():
-#     """
-#     Lists every COM port available on the system.
-#
-#     :return: List of strings
-#     """
-#
-#     ports = ['COM%s' % (i + 1) for i in range(256)]
-#
-#     result = []
-#     for port in ports:
-#         try:
-#             s = serial.Serial(port)
-#             s.close()
-#             result.append(port)
-#         except (OSError, serial.SerialException):
-#             pass
-#     return result
-#
-# print(serial_ports())
-#
-# ser = serial.Serial()
-# ser.baudrate = 115200
-# try:
-#     ser.port = "COM6"
-# except serial.SerialException as e:
-#     print(f"Error: {e}"
-#           f"\nMake sure this COM Port isn't already in use and try again.")
-# else:
-#     ser.close()
-#     try:
-#         ser.open()
-#     except serial.SerialException as e:
-#         print(f"Error: {e}"
-#               f"\nMake sure this COM Port exists.")
-#     else:
-#         myString = "Halo\n"
-#         myString = myString.encode()
-#
-#
-#         bytes = ser.write(myString)
-#         print(len(myString))
-#         print(bytes)
-#
-#         if bytes != len(myString):
-#             print(1)
-#             print("Error! Write operation failed.")
-#         else:
-#             print(2)
-#             readString = ser.read(len(myString))
-#             print(readString)
-#         ser.close()
+
 
