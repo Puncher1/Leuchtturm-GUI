@@ -4,6 +4,7 @@ from ctypes import windll
 from events.editor import EditorEvents
 from events.error_handler import on_error
 from utils.utils import *
+from utils.common import Path, Dict, Color
 
 from PyQt5 import uic
 
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Leuchtturm")
         self.setFixedSize(700, 500)
-        self.setWindowIcon(QIcon("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/lighthouse.png"))
+        self.setWindowIcon(QIcon(Path.png_MainIcon))
 
         windowFont = QFont("Calibri", 10)
         self.setFont(windowFont)
@@ -103,7 +104,6 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
-        tabHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
         runDescription = createLabelText(
             "Here, you can change the dot-matrix display."
             "<br>Select a text at <i><b>Pre-created Texts</b></i> and press <b><i>Update text</i></b> to display a text.",
@@ -120,10 +120,26 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
+        with open(Path.json_States, "r") as fdata:
+            data = json.load(fdata)
+
+        if "displayBtn_ONOFF" in data.keys():
+            displayBtn_ONOFF_label = Dict.invert_ONOFF[data["displayBtn_ONOFF"]]
+        else:
+            displayBtn_ONOFF_label = "ON"
+
+        if displayBtn_ONOFF_label == "ON":
+            displayBtn_ONOFF_color = Color.green
+        elif displayBtn_ONOFF_label == "OFF":
+            displayBtn_ONOFF_color = Color.red
+        else:
+            raise TypeError("'displayBtn_ONOFF_label' is neither 'ON' nor 'OFF'.")
+
         displayBtn_ONOFF = createPushButton(
             (60, 30),
-            "ON/OFF",
+            displayBtn_ONOFF_label,
             fontSize=11,
+            textColor=displayBtn_ONOFF_color,
             rect=(20, 180, 0, 0),
             parent=runWidget,
             func=None       # TODO
@@ -181,13 +197,18 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
-        with open("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/json/texts.json", "r") as fdata:
+        with open(Path.json_Texts, "r") as fdata:
             data = json.load(fdata)
 
-        pecreatedTexts_Dropdown = createComboBox(
+        if len(list(data.keys())) == 0:
+            placeholder = "No texts available"
+        else:
+            placeholder = "Select text"
+
+        self.precreatedTexts_Dropdown = createComboBox(
             items=list(data.keys()),
             fontSize=11,
-            placeholder="Select text",
+            placeholder=placeholder,
             rect=(40, 310, 151, 23),
             parent=runWidget
         )
@@ -210,8 +231,8 @@ class MainWindow(QMainWindow):
 
         self.tabs = createTab(
             [
-                (runWidget, QIcon("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/icons/execute_dark.png"), "Run"),
-                (editorWidget, QIcon("C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/icons/notebook.png"), "Editor")
+                (runWidget, QIcon(Path.png_ExecutiveDark), "Run"),
+                (editorWidget, QIcon(Path.png_Notebook), "Editor")
             ],
             self.on_tab_changed
         )
@@ -219,13 +240,18 @@ class MainWindow(QMainWindow):
 
 
     def on_tab_changed(self):
-        updateEditorTable(self.tableWidget, self.tabs)
+        tabName = self.tabs.tabText(self.tabs.currentIndex())
 
+        if tabName == "Editor":
+            updateEditorTable(self.tableWidget)
+
+        elif tabName == "Run":
+            updateRunDropdown(self.precreatedTexts_Dropdown)
 
 
 app = QApplication([])
 # app.setStyle("Fusion")
-app.setWindowIcon(QIcon(os.path.join(basedir, 'C:/DEV/PROJECTS/Leuchtturm/Leuchtturm-GUI/utils/images/leuchtturm.ico')))
+app.setWindowIcon(QIcon(os.path.join(basedir, Path.ico_MainIcon)))
 
 sys.excepthook = on_error
 
