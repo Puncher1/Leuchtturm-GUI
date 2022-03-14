@@ -10,7 +10,6 @@ class EditorEvents:
 
 
     def on_btnNew_pressed(self):
-        print(self.__getattribute__("mainWindow"))
         with open(Path.json_Texts, "r") as fdata:
             data = json.load(fdata)
 
