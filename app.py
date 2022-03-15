@@ -21,12 +21,19 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
 """
 TODO:
-- run tab
-- create functions for things (if needed, done for editor tab)
-- docstrings update for utils functions
-- docstrings on_... functions
+Run Tab
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
+- create functions for things (if needed, done for editor tab)
+
+Editor Tab
+- check if only allowed characters/symbols are passed
+- edit button to change context of texts
+
+Others
+- docstrings update for utils functions
+- docstrings on_... functions
+
 
 """
 
