@@ -133,6 +133,8 @@ class EditorEvents:
             label = self.inputLabel.text()
             text = self.inputText.text()
 
+            valid, invalidChars = checkValidStr(text)
+
             if label == "" and text == "":
                 createMessageBox(self.mainWindow, "Error!", "Text and Label is empty, please try again",
                                  [QMessageBox.Ok], QMessageBox.Critical)
@@ -144,6 +146,11 @@ class EditorEvents:
             elif text == "":
                 createMessageBox(self.mainWindow, "Error!", "Text is emtpy, please try again.",
                                  [QMessageBox.Ok], QMessageBox.Critical)
+
+            elif not valid:
+                createMessageBox(self.mainWindow, "Error!", f"Text has invalid symbols ({', '.join(invalidChars)}), please try again.",
+                                 [QMessageBox.Ok], QMessageBox.Critical)
+
             else:
 
                 with open(Path.json_Texts, "r") as fdata:
