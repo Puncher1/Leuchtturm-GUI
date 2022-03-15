@@ -82,8 +82,8 @@ class QComboBox(QComboBox):
 
 
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
-                    bold: bool = False, underline: bool = False, italic: bool = False, rect: Tuple[int, int, int, int] = None,
-                    parent: QWidget = None):
+                    bold: bool = False, underline: bool = False, italic: bool = False, border_px: int = None,
+                    autoResize: bool = False, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QLabel`` with the passed arguments and returns it.
 
@@ -122,6 +122,12 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
 
     if rect is not None:
         label.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
+
+    if border_px:
+        label.setStyleSheet(f"border: {border_px}px solid black;")
+
+    if autoResize:
+        label.adjustSize()
 
     return label
 
@@ -191,6 +197,8 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
 
     if func is not None:
         button.clicked.connect(func)
+
+    button.setToolTip("Helloo")
 
     return button
 
@@ -616,10 +624,10 @@ def updateEditorTable(table: QTableWidget):
 
 def updateRunDropdown(comboBox: QComboBox):
     """
-        Updates the dropdown (``Qt.QComboBox``) to select a pre-created text in the run tab.
+    Updates the dropdown (``Qt.QComboBox``) to select a pre-created text in the run tab.
 
-        :param comboBox: The dropdown to select a pre-created text: QTableWidget
-        """
+    :param comboBox: The dropdown to select a pre-created text: QTableWidget
+    """
 
     with open(Path.json_Texts, "r") as fdata:
         data = json.load(fdata)
@@ -634,4 +642,25 @@ def updateRunDropdown(comboBox: QComboBox):
 
     comboBox.setPlaceholderText(placeholder)
     comboBox.setCurrentIndex(-1)
+
+
+def checkValidStr(string: str):
+    """
+    Checks if a specific string has invalid chars in it and returns the valid state and a list of all (not duplicated) invalid chars in the specific string.
+
+    :param string: The string which should be checked: str
+
+    :return: The valid state and a list of all (not duplicated) invalid chars in the specific string: bool, list
+    """
+
+    validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜËÀÉÈabcdefghijklmnopqrstuvwxyzäöüëàéè0123456789.,'\"?!@_*#$%&()+-/:;<=>[\]^`{|}~© "
+
+    invalidChars = []
+    valid = True
+    for char in string:
+        if char not in validChars:
+            valid = False
+            invalidChars.append(char)
+
+    return valid, list(set(invalidChars))
 
