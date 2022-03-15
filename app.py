@@ -25,9 +25,9 @@ Run Tab
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
 - create functions for things (if needed, done for editor tab)
+- Show text tool tip
 
 Editor Tab
-- check if only allowed characters/symbols are passed
 - edit button to change context of texts
 
 Others
@@ -36,6 +36,17 @@ Others
 
 
 """
+
+class ProxyStyle(QProxyStyle):
+
+    def __init__(self):
+        super().__init__()
+
+    def styleHint(self, hint: QStyle.StyleHint, option: Optional['QStyleOption'] = ..., widget: Optional[QWidget] = ..., returnData: Optional['QStyleHintReturn'] = ...) -> int:
+        if hint == QStyle.SH_ToolTip_WakeUpDelay:
+            return 1000
+
+        return QProxyStyle.styleHint(hint, option, widget, returnData)
 
 
 # Main
@@ -77,6 +88,13 @@ class MainWindow(QMainWindow):
             func=self.editor.on_btnNew_pressed
         )
 
+        buttonEdit = createPushButton(
+            text="Edit",
+            buttonSize=(50, 25),
+            fontSize=11,
+            func=None
+        )
+
         buttonDel = createPushButton(
             text="Del",
             buttonSize=(50, 25),
@@ -93,8 +111,9 @@ class MainWindow(QMainWindow):
 
         buttonLayout = createGridLayout(
             (buttonNew, (1, 0)),
-            (buttonDel, (1, 1)),
-            (buttonClear, (1, 2))
+            (buttonEdit, (1, 1)),
+            (buttonDel, (1, 2)),
+            (buttonClear, (1, 3))
         )
 
         editorLayout = createGridLayout(
@@ -177,7 +196,7 @@ class MainWindow(QMainWindow):
         )
 
         runningLightBtn_ONOFF = createPushButton(
-            (60, 30),
+            (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
             "ON/OFF",
             fontSize=11,
             rect=(540, 180, 71, 31),
@@ -228,20 +247,36 @@ class MainWindow(QMainWindow):
         )
 
         currentTextTitle = createLabelText(
-            "Current Text",
+            "Label of Current Text",
             fontSize=13,
             bold=True,
-            rect=(40, 360, 121, 23),
+            rect=(40, 360, 150, 23),
             parent=runWidget
         )
 
-        self.currentText_LineEdit = createLineEdit(
-            10,
-            placeholder="No text showing",
+        with open(Path.json_States, "r") as fdata:
+            data = json.load(fdata)
+
+        if "currentTextLabel" in data.keys():
+            currentTextLabel = data["currentTextLabel"]
+        else:
+            currentTextLabel = "No text showing"
+
+        self.currentText_Label = createLabelText(
+            text=currentTextLabel,
             fontSize=11,
             rect=(40, 390, 151, 22),
             parent=runWidget,
-            isReadOnly=True
+            border_px=1
+        )
+
+        showCurrentText = createPushButton(
+            buttonSize=(24, 24),
+            fontSize=10,
+            image=(Path.png_Notebook, (24, 24)),
+            rect=(200, 389, 50, 20),
+            parent=runWidget,
+            func=self.run.on_btnShowText_pressed
         )
 
         self.tabs = createTab(
@@ -264,7 +299,8 @@ class MainWindow(QMainWindow):
             updateRunDropdown(self.precreatedTexts_Dropdown)
 
 
-app = QApplication([])
+proxyStyle = QProxyStyle()
+app = QApplication([proxyStyle])
 # app.setStyle("Fusion")
 app.setWindowIcon(QIcon(os.path.join(basedir, Path.ico_MainIcon)))
 
