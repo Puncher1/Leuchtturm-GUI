@@ -601,21 +601,25 @@ def updateEditorTable(table: QTableWidget):
     col = 0
     row = 1
     for k, v in data.items():
-        labelItem = QTableWidgetItem()
-        labelItem.setTextAlignment(Qt.AlignCenter)
+        labelItem = QTextEdit()
         labelItem.setFont(itemFont)
         labelItem.setText(k)
+        labelItem.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        labelItem.setReadOnly(True)
+        labelItem.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        labelItem.setFrameStyle(QFrame.NoFrame)
+        labelItem.setAlignment(Qt.AlignCenter)
 
         textItem = QTextEdit()
         textItem.setFont(itemFont)
         textItem.setText(v)
         textItem.setReadOnly(True)
-        textItem.setTextInteractionFlags(Qt.NoTextInteraction)
+        textItem.setTextInteractionFlags(Qt.TextSelectableByMouse)
         textItem.setFrameStyle(QFrame.NoFrame)
         textItem.setAlignment(Qt.AlignCenter)
         textItem.setFixedHeight(round(textItem.document().size().height()))
 
-        table.setItem(row, col, labelItem)
+        table.setCellWidget(row, col, labelItem)
         table.setCellWidget(row, col + 1, textItem)
         table.resizeRowsToContents()
 
