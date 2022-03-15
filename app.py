@@ -22,6 +22,8 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
+- dropdown: update to current selected text 
+- add button which shows current text (communicate with uC and ask for current text)
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
 - create functions for things (if needed, done for editor tab)
@@ -88,13 +90,6 @@ class MainWindow(QMainWindow):
             func=self.editor.on_btnNew_pressed
         )
 
-        buttonEdit = createPushButton(
-            text="Edit",
-            buttonSize=(50, 25),
-            fontSize=11,
-            func=None
-        )
-
         buttonDel = createPushButton(
             text="Del",
             buttonSize=(50, 25),
@@ -111,9 +106,8 @@ class MainWindow(QMainWindow):
 
         buttonLayout = createGridLayout(
             (buttonNew, (1, 0)),
-            (buttonEdit, (1, 1)),
-            (buttonDel, (1, 2)),
-            (buttonClear, (1, 3))
+            (buttonDel, (1, 1)),
+            (buttonClear, (1, 2))
         )
 
         editorLayout = createGridLayout(
@@ -300,8 +294,9 @@ class MainWindow(QMainWindow):
 
 
 proxyStyle = QProxyStyle()
-app = QApplication([proxyStyle])
+app = QApplication([])
 # app.setStyle("Fusion")
+app.setStyle(proxyStyle)
 app.setWindowIcon(QIcon(os.path.join(basedir, Path.ico_MainIcon)))
 
 sys.excepthook = on_error
