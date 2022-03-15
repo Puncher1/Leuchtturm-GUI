@@ -76,8 +76,8 @@ class RunEvents:
             print(feedback)
 
             serialPort = Serial(baudrate=115200, port="COM6")
-            feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText))
-            print(feedback)
+            feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText.encode()))
+            print(feedback.decode())
 
             self.mainWindow.currentText_LineEdit.setText(selectedTextLabel)
 
