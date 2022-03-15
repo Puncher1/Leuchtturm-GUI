@@ -633,19 +633,31 @@ def updateRunDropdown(comboBox: QComboBox):
     :param comboBox: The dropdown to select a pre-created text: QTableWidget
     """
 
-    with open(Path.json_Texts, "r") as fdata:
-        data = json.load(fdata)
+    with open(Path.json_Texts, "r") as fdataTexts:
+        dataTexts = json.load(fdataTexts)
+
+    with open(Path.json_States, "r") as fdataStates:
+        dataStates = json.load(fdataStates)
 
     comboBox.clear()
-    comboBox.addItems(data.keys())
+    comboBox.addItems(dataTexts.keys())
 
-    if len(list(data.keys())) == 0:
+
+    if len(list(dataTexts.keys())) == 0:
         placeholder = "No texts available"
-    else:
+
+    elif "currentTextLabel" not in dataStates.keys():
         placeholder = "Select text"
+
+    else:
+        placeholder = dataStates["currentTextLabel"]
 
     comboBox.setPlaceholderText(placeholder)
     comboBox.setCurrentIndex(-1)
+
+
+def updateCurrentText(lineEdit: QLineEdit):
+
 
 
 def checkValidStr(string: str):

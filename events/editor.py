@@ -192,6 +192,14 @@ class EditorEvents:
                 with open(Path.json_Texts, "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
 
+                with open(Path.json_States, "r") as fdata:
+                    data = json.load(fdata)
+                if "currentTextLabel" in data.keys():
+                    if data["currentTextLabel"] == selectedLabel:
+                        del data["currentTextLabel"]
+                        with open(Path.json_States, "w+") as fdata:
+                            json.dump(data, fdata, sort_keys=True, indent=4)
+
                 updateEditorTable(self.mainWindow.tableWidget)
                 self.dlgDelText.close()
                 createMessageBox(self.mainWindow, "Delete Text", "Your text has been deleted!", [QMessageBox.Ok],

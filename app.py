@@ -22,7 +22,8 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-- dropdown: update to current selected text 
+- updateDropdown, when got cleared
+- updateCurrentText, when got deleted or cleared
 - add button which shows current text (communicate with uC and ask for current text)
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
@@ -224,16 +225,25 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
-        with open(Path.json_Texts, "r") as fdata:
-            data = json.load(fdata)
 
-        if len(list(data.keys())) == 0:
+
+        with open(Path.json_Texts, "r") as fdataTexts:
+            dataTexts = json.load(fdataTexts)
+
+        with open(Path.json_States, "r") as fdataStates:
+            dataStates = json.load(fdataStates)
+
+        if len(list(dataTexts.keys())) == 0:
             placeholder = "No texts available"
-        else:
+
+        elif "currentTextLabel" not in dataStates.keys():
             placeholder = "Select text"
 
+        else:
+            placeholder = dataStates["currentTextLabel"]
+
         self.precreatedTexts_Dropdown = createComboBox(
-            items=list(data.keys()),
+            items=list(dataTexts.keys()),
             fontSize=11,
             placeholder=placeholder,
             rect=(40, 310, 151, 23),
