@@ -3,13 +3,14 @@ import serial
 
 class Serial:
 
-    def __init__(self, baudrate, port):
+    def __init__(self, baudrate: int, port: str):
         self.baudrate = baudrate
         self.port = port
 
         self.ser = serial.Serial()
         self.ser.baudrate = self.baudrate
         self.ser.port = self.port
+        self.ser.write_timeout = 2
 
 
     def _serial_ports(self):
@@ -29,10 +30,13 @@ class Serial:
                 result.append(port)
             except (OSError, serial.SerialException) as e:
                 pass
+
         return result
 
 
-    def serialWrite(self, string: str, size: int = None):
+    def serialWrite(self, string: str, size: int = None, timeout: int = None):
+        self.ser.timeout = timeout
+
         if self.port not in self._serial_ports():
             raise serial.SerialException(f"Make sure this COM Port exists.")
 
@@ -48,7 +52,12 @@ class Serial:
                 raise serial.SerialException(e)
         else:
             encodedString = string.encode()
-            bytes = self.ser.write(encodedString)
+
+            try:
+                bytes = self.ser.write(encodedString)
+            except Exception as e:
+                self.ser.close()
+                raise serial.SerialException(f"Write operation failed! Error: {e}")
 
             if bytes != len(encodedString):
                 self.ser.close()
@@ -58,9 +67,14 @@ class Serial:
                 feedback = self.ser.read(size)
             else:
                 feedback = self.ser.read(len(encodedString))
-            self.ser.close()
 
+            if feedback is None or feedback == b"":
+                self.ser.close()
+                raise serial.SerialTimeoutException("Read operation timed out and didn't receive any data.")
+
+            self.ser.close()
             return feedback
+
 
     def serialRead(self, size: int = 1):
         if self.port not in self._serial_ports():
@@ -81,7 +95,7 @@ class Serial:
             result = self.ser.read(size)
         except serial.SerialException as e:
             self.ser.close()
-            raise serial.SerialException("Read operation failed!")
+            raise serial.SerialException(f"Read operation failed! Error {e}")
 
         self.ser.close()
 
