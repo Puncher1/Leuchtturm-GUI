@@ -3,14 +3,16 @@ import serial
 
 class Serial:
 
-    def __init__(self, baudrate: int, port: str):
+    def __init__(self, baudrate: int, port: str, timeout: int = None):
         self.baudrate = baudrate
         self.port = port
+        self.timeout = timeout
 
         self.ser = serial.Serial()
         self.ser.baudrate = self.baudrate
         self.ser.port = self.port
-        self.ser.write_timeout = 2
+        self.ser.timeout = self.timeout
+        self.ser.write_timeout = self.timeout
 
 
     def _serial_ports(self):
@@ -34,9 +36,7 @@ class Serial:
         return result
 
 
-    def serialWrite(self, string: str, size: int = None, timeout: int = None):
-        self.ser.timeout = timeout
-
+    def serialWrite(self, string: str, size: int = None):
         if self.port not in self._serial_ports():
             raise serial.SerialException(f"Make sure this COM Port exists.")
 

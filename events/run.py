@@ -38,8 +38,8 @@ class RunEvents:
         else:
             raise TypeError("'displayBtn_ONOFF_label' is neither 'ON' nor 'OFF'.")
 
-        serialPort = Serial(baudrate=115200, port="COM6")
-        feedback = serialPort.serialWrite(f"display_{displayBtn_ONOFF_newState.lower()}\n", 3, 1)
+        serialPort = Serial(baudrate=115200, port="COM6", timeout=1)
+        feedback = serialPort.serialWrite(f"display_{displayBtn_ONOFF_newState.lower()}\n", 3)
         print(f"{feedback=}")
 
         self.mainWindow.displayBtn_ONOFF.setText(displayBtn_ONOFF_label)
