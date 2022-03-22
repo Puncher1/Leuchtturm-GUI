@@ -134,7 +134,7 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
 
 def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                      textColor: str = None, bold: bool = False, underline: bool = False, italic: bool = False, image: Tuple[str, Tuple[int, int]] = None,
-                     func: Callable = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+                     toolTip: str = None, func: Callable = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QPushButton`` with the passed arguments and returns it.
 
@@ -151,9 +151,7 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
     """
 
     if image is None and text is None:
-        print(f"{createPushButton.__code__}"
-              f"\nValue Error: Wrong parameters passed. Make sure either text or image is not None.")
-        exit()
+        raise ValueError("Wrong parameters passed. Make sure either text or image is not None.")
 
     button = QPushButton()
 
@@ -192,13 +190,14 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
             button.setIcon(QIcon(image_path, text))
             button.setIconSize(QSize(x, y))
 
+    if toolTip is not None:
+        button.setToolTip(toolTip)
+
     if rect is not None:
         button.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
 
     if func is not None:
         button.clicked.connect(func)
-
-    button.setToolTip("Helloo")
 
     return button
 
@@ -422,7 +421,7 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
     return dlgBtnBox
 
 
-def createComboBox(items: List[str], placeholder: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None, parent: QWidget = None): # TODO: size
+def createComboBox(items: List[str], placeholder: str = None, fontStr: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None, parent: QWidget = None): # TODO: size
     """
     Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
 
@@ -436,9 +435,8 @@ def createComboBox(items: List[str], placeholder: str = None, font: str = STD_FO
             raise TypeError(f"Unexpected type '{item.__class__.__name__}'")
 
     comboBox = QComboBox()
-    font = QFont(font, fontSize)
+    font = QFont(fontStr, fontSize)
     comboBox.setFont(font)
-
 
     if parent is not None:
         comboBox.setParent(parent)
@@ -642,7 +640,6 @@ def updateRunDropdown(comboBox: QComboBox):
     comboBox.clear()
     comboBox.addItems(dataTexts.keys())
 
-
     if len(list(dataTexts.keys())) == 0:
         placeholder = "No texts available"
 
@@ -650,13 +647,13 @@ def updateRunDropdown(comboBox: QComboBox):
         placeholder = "Select text"
 
     else:
-        placeholder = dataStates["currentTextLabel"]
+        placeholder = f"Selected: {dataStates['currentTextLabel']}"
 
     comboBox.setPlaceholderText(placeholder)
     comboBox.setCurrentIndex(-1)
 
 
-def updateCurrentText(lineEdit: QLineEdit):
+# def updateCurrentText(lineEdit: QLineEdit):
 
 
 
