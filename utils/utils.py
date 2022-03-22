@@ -48,17 +48,22 @@ HINT_gridLayout = Union[
 ]
 
 # Overwrites
-
 class QComboBox(QComboBox):
     """
     @Overwrite
 
-    Due of a bug in the library, ``Qt.QComboBox`` gets overwritten to show a placeholder at combo boxes.
+    1) Due of a bug in the library, ``Qt.QComboBox`` gets overwritten to show a placeholder at combo boxes.
     Inherits from ``Qt.QComboBox``
+
+    2) Because ``Qt.QComboBox`` doesn't provide to bold the placeholder text ``Qt.QComboBox`` gets overwritten.
     """
 
-    def paintEvent(self, event):
+    def __init__(self, isPlaceholderBold: bool = False, boldPart: str = None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.boldPlaceholder = isPlaceholderBold
 
+
+    def paintEvent(self, event):
         painter = QStylePainter(self)
         painter.setPen(self.palette().color(QPalette.Text))
 
@@ -76,9 +81,14 @@ class QComboBox(QComboBox):
             if self.placeholderText():
                 opt.currentText = self.placeholderText()
 
+            if self.isPlaceholderBold and self.placeholderText():
+                font = self.font()
+                font.setBold(True)
+                painter.setFont(font)
+
+
         # draw the icon and text
         painter.drawControl(QStyle.CE_ComboBoxLabel, opt)
-
 
 
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
@@ -421,7 +431,9 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
     return dlgBtnBox
 
 
-def createComboBox(items: List[str], placeholder: str = None, fontStr: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None, parent: QWidget = None): # TODO: size
+def createComboBox(items: List[str], placeholder: str = None, boldPlaceholder: bool = False,
+                   fontStr: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None,
+                   parent: QWidget = None): # TODO: size
     """
     Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
 
@@ -434,7 +446,7 @@ def createComboBox(items: List[str], placeholder: str = None, fontStr: str = STD
         if type(item) != str:
             raise TypeError(f"Unexpected type '{item.__class__.__name__}'")
 
-    comboBox = QComboBox()
+    comboBox = QComboBox(isPlaceholderBold=boldPlaceholder)
     font = QFont(fontStr, fontSize)
     comboBox.setFont(font)
 
