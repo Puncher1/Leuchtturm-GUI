@@ -22,9 +22,23 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-- updateDropdown, when got cleared
-- updateCurrentText, when got deleted or cleared
-- add button which shows current text (communicate with uC and ask for current text)
+- updateRunDropdown, when editor table got cleared
+- if "currentTextLabel" got deleted or clear in editor table -> delete "currentTextLabel" from states.json -> update runDropdown
+- Dot-Matrix Display
+    - Add button ...
+        - called "No text showing", when no text is showing (display is off or nothing got selected)
+        - called "View text", when a text is selected AND the display is on. This shows a dialog on which the label and the text is. 
+        (Text: current text from data receive nucleo board, Label: "currentTextLabel" if available otherwise "N/A")
+- Pre-created texts
+    (- Right next to or below the dropdown, there's a button ...
+        - called "No text selected", when nothing is selected
+        - "Selected: {label of text}")
+    - The dropdown is called ...
+        - "No text available" if no text are available
+        - "Select text" if texts are available but nothing selected
+        - "Selected: {label}", if a text is selected    
+- Remove "Label of Current Text"
+    
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
 - create functions for things (if needed, done for editor tab)
@@ -165,7 +179,7 @@ class MainWindow(QMainWindow):
 
         self.displayBtn_ONOFF = createPushButton(
             (60, 30),
-            displayBtn_ONOFF_label,
+            text=displayBtn_ONOFF_label,
             fontSize=11,
             textColor=displayBtn_ONOFF_color,
             rect=(20, 180, 0, 0),
@@ -175,7 +189,16 @@ class MainWindow(QMainWindow):
 
         displayBtn_UpdateText = createPushButton(
             (85, 30),
-            "Update text",
+            text="Update text",
+            fontSize=11,
+            rect=(120, 180, 0, 0),
+            parent=runWidget,
+            func=self.run.on_btnUpdateText_pressed
+        )
+
+        displayBtn_ShowText = createPushButton(
+            (85, 30),
+            text="Update text",
             fontSize=11,
             rect=(120, 180, 0, 0),
             parent=runWidget,
@@ -192,7 +215,7 @@ class MainWindow(QMainWindow):
 
         runningLightBtn_ONOFF = createPushButton(
             (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
-            "ON/OFF",
+            text="ON/OFF",
             fontSize=11,
             rect=(540, 180, 71, 31),
             parent=runWidget,
@@ -225,8 +248,6 @@ class MainWindow(QMainWindow):
             parent=runWidget
         )
 
-
-
         with open(Path.json_Texts, "r") as fdataTexts:
             dataTexts = json.load(fdataTexts)
 
@@ -240,7 +261,7 @@ class MainWindow(QMainWindow):
             placeholder = "Select text"
 
         else:
-            placeholder = dataStates["currentTextLabel"]
+            placeholder = f"Selected: {dataStates['currentTextLabel']}"
 
         self.precreatedTexts_Dropdown = createComboBox(
             items=list(dataTexts.keys()),
@@ -248,39 +269,6 @@ class MainWindow(QMainWindow):
             placeholder=placeholder,
             rect=(40, 310, 151, 23),
             parent=runWidget
-        )
-
-        currentTextTitle = createLabelText(
-            "Label of Current Text",
-            fontSize=13,
-            bold=True,
-            rect=(40, 360, 150, 23),
-            parent=runWidget
-        )
-
-        with open(Path.json_States, "r") as fdata:
-            data = json.load(fdata)
-
-        if "currentTextLabel" in data.keys():
-            currentTextLabel = data["currentTextLabel"]
-        else:
-            currentTextLabel = "No text showing"
-
-        self.currentText_Label = createLabelText(
-            text=currentTextLabel,
-            fontSize=11,
-            rect=(40, 390, 151, 22),
-            parent=runWidget,
-            border_px=1
-        )
-
-        showCurrentText = createPushButton(
-            buttonSize=(24, 24),
-            fontSize=10,
-            image=(Path.png_Notebook, (24, 24)),
-            rect=(200, 389, 50, 20),
-            parent=runWidget,
-            func=self.run.on_btnShowText_pressed
         )
 
         self.tabs = createTab(
