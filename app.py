@@ -72,84 +72,84 @@ class MainWindow(QMainWindow):
         self.setFixedSize(700, 500)
         self.setWindowIcon(QIcon(Path.png_MainIcon))
 
-        windowFont = QFont("Calibri", 10)
-        self.setFont(windowFont)
+        self.windowFont = QFont("Calibri", 10)
+        self.setFont(self.windowFont)
 
-        titleWidget = createLabelText("Editor", fontSize=18, bold=True, underline=True)
+        self.titleWidget = createLabelText("Editor", fontSize=18, bold=True, underline=True)
 
-        editorDescWidget = createLabelText(
+        self.editorDescWidget = createLabelText(
             "Here, you can add your pre-created texts which you can then simply select and send to the dot-matrix display "
             "(even if the program has restarted).",
             fontSize=11
         )
 
-        editorDescWidget.setWordWrap(True)
-        editorDescWidget.setFixedSize(590, 50)
+        self.editorDescWidget.setWordWrap(True)
+        self.editorDescWidget.setFixedSize(590, 50)
 
         self.tableWidget = createTable(20, 2, [(0, 100), (1, 475)], False, True, False, True, True)
 
-        buttonNew = createPushButton(
+        self.buttonNew = createPushButton(
             text="New",
             buttonSize=(50, 25),
             fontSize=11,
             func=self.editor.on_btnNew_pressed
         )
 
-        buttonDel = createPushButton(
+        self.buttonDel = createPushButton(
             text="Del",
             buttonSize=(50, 25),
             fontSize=11,
             func=self.editor.on_btnDel_pressed
         )
 
-        buttonClear = createPushButton(
+        self.buttonClear = createPushButton(
             text="Clear",
             buttonSize=(50, 25),
             fontSize=11,
             func=self.editor.on_btnClear_pressed
         )
 
-        buttonLayout = createGridLayout(
-            (buttonNew, (1, 0)),
-            (buttonDel, (1, 1)),
-            (buttonClear, (1, 2))
+        self.buttonLayout = createGridLayout(
+            (self.buttonNew, (1, 0)),
+            (self.buttonDel, (1, 1)),
+            (self.buttonClear, (1, 2))
         )
 
-        editorLayout = createGridLayout(
-            (titleWidget, (0, 0)),
-            (editorDescWidget, (0, 1)),
-            (buttonLayout, (5, 1)),
+        self.editorLayout = createGridLayout(
+            (self.titleWidget, (0, 0)),
+            (self.editorDescWidget, (0, 1)),
+            (self.buttonLayout, (5, 1)),
             (self.tableWidget, (0, 2))
         )
 
-        editorWidget = QWidget()
-        editorWidget.setLayout(editorLayout)
+        self.editorWidget = QWidget()
+        self.editorWidget.setLayout(self.editorLayout)
 
-        runWidget = QWidget()
+        self.runWidget = QWidget()
 
-        runTitle = createLabelText(
+        self.runTitle = createLabelText(
             "Run",
             fontSize=18,
             bold=True,
             underline=True,
             rect=(10, 0, 300, 45),
-            parent=runWidget
+            parent=self.runWidget
         )
 
-        runDescription = createLabelText(
+        self.runDescription = createLabelText(
             "Here, you can change the dot-matrix display."
             "<br>Select a text at <i><b>Pre-created Texts</b></i> and press <b><i>Update text</i></b> to display a text.",
             fontSize=11,
             rect=(10, 50, 500, 50),
-            parent=runWidget
+            parent=self.runWidget
         )
 
-        displayTitle = createLabelText(
+        self.displayTitle = createLabelText(
             "Dot-Matrix Display",
             fontSize=13,
             bold=True,
             rect=(42, 140, 150, 30),
-            parent=runWidget
+            parent=self.runWidget
         )
 
         with open(Path.json_States, "r") as fdata:
@@ -173,69 +173,69 @@ class MainWindow(QMainWindow):
             fontSize=11,
             textColor=displayBtn_ONOFF_color,
             rect=(20, 180, 0, 0),
-            parent=runWidget,
+            parent=self.runWidget,
             func=self.run.on_btnDisplayONOFF_pressed
         )
 
-        displayBtn_UpdateText = createPushButton(
+        self.displayBtn_UpdateText = createPushButton(
             (85, 30),
             text="Update text",
             fontSize=11,
             rect=(120, 180, 0, 0),
-            parent=runWidget,
+            parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
         )
 
-        displayBtn_ShowText = createPushButton(
+        self.displayBtn_ShowText = createPushButton(
             (85, 30),
             text="Update text",
             fontSize=11,
             rect=(120, 180, 0, 0),
-            parent=runWidget,
+            parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
         )
 
-        runningLightTitle = createLabelText(
+        self.runningLightTitle = createLabelText(
             text="Running Light",    # TODO: size overwrites rect size --> maybe dynamic?
             fontSize=13,
             bold=True,
             rect=(527, 140, 150, 30),
-            parent=runWidget
+            parent=self.runWidget
         )
 
-        runningLightBtn_ONOFF = createPushButton(
+        self.runningLightBtn_ONOFF = createPushButton(
             (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
             text="ON/OFF",
             fontSize=11,
             rect=(540, 180, 71, 31),
-            parent=runWidget,
+            parent=self.runWidget,
             func=None       # TODO
         )
 
-        runningLightSpeed_Slider = createSlider(
+        self.runningLightSpeed_Slider = createSlider(
             (25, 100),
             minVal=1,
             maxVal=100,
             singleStep=1,
             orientation=Qt.Vertical,
             rect=(555, 230, 21, 160),
-            parent=runWidget,
+            parent=self.runWidget,
             func=None   # TODO
         )
 
-        runningLightSpeed_Label = createLabelText(
+        self.runningLightSpeed_Label = createLabelText(
             "Speed",
             fontSize=10,
             rect=(510, 265, 31, 21),
-            parent=runWidget
+            parent=self.runWidget
         )
 
-        precreatedTextsTitle = createLabelText(
+        self.precreatedTextsTitle = createLabelText(
             "Pre-created Texts",
             fontSize=13,
             bold=True,
             rect=(40, 280, 130, 21),
-            parent=runWidget
+            parent=self.runWidget
         )
 
         with open(Path.json_Texts, "r") as fdataTexts:
@@ -257,15 +257,15 @@ class MainWindow(QMainWindow):
             items=list(dataTexts.keys()),
             fontSize=11,
             placeholder=placeholder,
-            boldPlaceholder=True,
+            isPlaceholderBold=True,
             rect=(40, 310, 151, 23),
-            parent=runWidget
+            parent=self.runWidget
         )
 
         self.tabs = createTab(
             [
-                (runWidget, QIcon(Path.png_ExecutiveDark), "Run"),
-                (editorWidget, QIcon(Path.png_Notebook), "Editor")
+                (self.runWidget, QIcon(Path.png_ExecutiveDark), "Run"),
+                (self.editorWidget, QIcon(Path.png_Notebook), "Editor")
             ],
             self.on_tab_changed
         )

@@ -60,7 +60,7 @@ class QComboBox(QComboBox):
 
     def __init__(self, isPlaceholderBold: bool = False, boldPart: str = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.boldPlaceholder = isPlaceholderBold
+        self.isPlaceholderBold = isPlaceholderBold
 
 
     def paintEvent(self, event):
@@ -431,7 +431,7 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
     return dlgBtnBox
 
 
-def createComboBox(items: List[str], placeholder: str = None, boldPlaceholder: bool = False,
+def createComboBox(items: List[str], placeholder: str = None, isPlaceholderBold: bool = False,
                    fontStr: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None,
                    parent: QWidget = None): # TODO: size
     """
@@ -446,7 +446,7 @@ def createComboBox(items: List[str], placeholder: str = None, boldPlaceholder: b
         if type(item) != str:
             raise TypeError(f"Unexpected type '{item.__class__.__name__}'")
 
-    comboBox = QComboBox(isPlaceholderBold=boldPlaceholder)
+    comboBox = QComboBox(isPlaceholderBold=isPlaceholderBold)
     font = QFont(fontStr, fontSize)
     comboBox.setFont(font)
 
