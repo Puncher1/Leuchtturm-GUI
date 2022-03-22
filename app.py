@@ -22,6 +22,7 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
+- runDropdown placeholder bold: https://stackoverflow.com/questions/71570323/pyqt5-how-to-bold-the-placeholder-of-a-qcombobox
 - updateRunDropdown, when editor table got cleared
 - if "currentTextLabel" got deleted or clear in editor table -> delete "currentTextLabel" from states.json -> update runDropdown
 - Dot-Matrix Display
@@ -53,17 +54,6 @@ Others
 
 
 """
-
-class ProxyStyle(QProxyStyle):
-
-    def __init__(self):
-        super().__init__()
-
-    def styleHint(self, hint: QStyle.StyleHint, option: Optional['QStyleOption'] = ..., widget: Optional[QWidget] = ..., returnData: Optional['QStyleHintReturn'] = ...) -> int:
-        if hint == QStyle.SH_ToolTip_WakeUpDelay:
-            return 1000
-
-        return QProxyStyle.styleHint(hint, option, widget, returnData)
 
 
 # Main
@@ -267,6 +257,7 @@ class MainWindow(QMainWindow):
             items=list(dataTexts.keys()),
             fontSize=11,
             placeholder=placeholder,
+            boldPlaceholder=True,
             rect=(40, 310, 151, 23),
             parent=runWidget
         )
