@@ -86,8 +86,6 @@ class RunEvents:
             feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText.encode()))
             print(feedback.decode())
 
-            self.mainWindow.currentText_Label.setText(selectedTextLabel)
-
             createMessageBox(
                 self.mainWindow,
                 "Update Text",
@@ -97,31 +95,3 @@ class RunEvents:
             )
 
 
-    def on_btnShowText_pressed(self):
-        labelText = self.mainWindow.currentText_Label.text()
-
-        if labelText == "No text showing":
-            createMessageBox(self.mainWindow, "Show Text", "No text currently showing.",
-                             [QMessageBox.Ok], QMessageBox.Critical)
-
-        else:
-
-            with open(Path.json_States, "r") as fdata:
-                data = json.load(fdata)
-            currentTextLabel = data["currentTextLabel"]
-
-            with open(Path.json_Texts, "r") as fdata:
-                data = json.load(fdata)
-
-            if currentTextLabel not in data.keys():
-                createMessageBox(self.mainWindow, "Show Text", "Can't show current text because it got deleted from editor table.",
-                                 [QMessageBox.Ok], QMessageBox.Critical)
-            else:
-                currentText = data[currentTextLabel]
-
-                createMessageBox(self.mainWindow,
-                                 "Current Text",
-                                 f"{currentText}",
-                                 [QMessageBox.Ok],
-                                 QMessageBox.Information
-                                 )
