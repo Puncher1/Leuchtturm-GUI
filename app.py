@@ -22,7 +22,6 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-- runDropdwon update to "Selected: asdsadsa" when text selected 
 - Dot-Matrix Display
     - Add button ...
         - called "No text showing", when no text is showing (display is off or nothing got selected)
