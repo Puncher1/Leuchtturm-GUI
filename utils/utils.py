@@ -92,8 +92,9 @@ class QComboBox(QComboBox):
 
 
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
-                    bold: bool = False, underline: bool = False, italic: bool = False, isMarkdown: bool = False,
-                    border_px: int = None, autoResize: bool = False, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+                    bold: bool = False, underline: bool = False, italic: bool = False, border_px: int = None,
+                    isMarkdown: bool = False, isAutoResize: bool = False, isWordWrap: bool = False,
+                    textAlignment: Union[Qt.Alignment, Qt.AlignmentFlag] = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QLabel`` with the passed arguments and returns it.
 
@@ -104,6 +105,13 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
     :param bold: Whether the text should be bold or not (default to False); bool
     :param underline: Whether the text should be underlined or not (default to False); bool
     :param italic: Whether the text should be italic or not (default to False); bool
+    :param border_px: How thick the borderline of the label should be in pixels. If None, no border is shown (default to None): int
+    :param isMarkdown: Whether the text format should support markdown or not (default to False): bool
+    :param isAutoResize: Whether the label should auto resize with the text or not (default to False): bool
+    :param isWordWrap: Whether the label should wrap the words to the next line or not (default to False): bool
+    :param textAlignment: The alignment for the text (default to None): Union[Qt.Alignment, Qt.AlignmentFlag]
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the label should be placed on (default to None): QWidget
 
     :return: The Label: Qt.QLabel
     """
@@ -139,8 +147,14 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
     if border_px:
         label.setStyleSheet(f"border: {border_px}px solid black;")
 
-    if autoResize:
+    if isAutoResize:
         label.adjustSize()
+
+    if isWordWrap:
+        label.setWordWrap(True)
+
+    if textAlignment:
+        label.setAlignment(textAlignment)
 
     return label
 
@@ -151,15 +165,20 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
     """
     Creates a ``Qt.QPushButton`` with the passed arguments and returns it.
 
-    :param text: The text which is on the button (default to None); str
-    :param buttonSize: The size of the button; Tuple[x: int, y: int]
-    :param font: The font which has the button's text (default to "Calibri"); str
-    :param fontSize: The font's size (default to 10); int
-    :param bold: Whether the text should be bold or not (default to False); bool
-    :param underline: Whether the text should be underlined or not (default to False); bool
-    :param italic: Whether the text should be italic or not (default to False); bool
-    :param image: An image which replaces the button (default to None): Tuple[image_path; str, Tuple[x: int, y: int]]
-    :param func: The follow-up function which gets called when the button is pressed (default to None); Callable
+    :param text: The text which is on the button (default to None): str
+    :param buttonSize: The size of the button: Tuple[x: int, y: int]
+    :param font: The font which has the button's text (default to "Calibri"): str
+    :param fontSize: The font's size (default to 10): int
+    :param textColor: The text color of the button. If None, the color is black (0x000000)
+    :param bold: Whether the text should be bold or not (default to False): bool
+    :param underline: Whether the text should be underlined or not (default to False): bool
+    :param italic: Whether the text should be italic or not (default to False): bool
+    :param image: An image which replaces the button (default to None): Tuple[image_path: str, Tuple[x: int, y: int]]
+    :param func: The follow-up function which gets called when the button is pressed (default to None): Callable
+    :param toolTip: The text of the tool tip (text when hovering over the button) (default to None: str
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the button should be placed on (default to None): QWidget
+
     :return: The push-button: Qt.QPushButton
     """
 
@@ -221,11 +240,14 @@ def createLineEdit(maxLength: int, size: Tuple[int, int] = None, placeholder: st
     """
     Creates a ``Qt.QLineEdit`` with the passed arguments and returns it.
 
-    :param maxLength: The maximum length (max. amount of symbols) of the input; int
-    :param size: The size of the text field (default to None); Tuple[x: int, y: int]
-    :param placeholder: The placeholder text (default to None); str
-    :param font: The font which has the button's text (default to "Calibri"); str
-    :param fontSize: The font's size (default to 10); int
+    :param maxLength: The maximum length (max. amount of symbols) of the input: int
+    :param size: The size of the text field (default to None): Tuple[x: int, y: int]
+    :param placeholder: The placeholder text (default to None): str
+    :param font: The font which has the button's text (default to "Calibri"): str
+    :param fontSize: The font's size (default to 10): int
+    :param isReadOnly: Whether the line edit is read only or not (default to False): bool
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the line edit should be placed on (default to None): QWidget
 
     :return: The line edit: Qt.QLineEdit
     """
@@ -267,6 +289,8 @@ def createTable(rowCount: int, colCount: int, colsWidth: List[Tuple[int, int]] =
     :param isEditingTrigger: Whether the editing trigger should be activated or not, default to True: bool
     :param isHHeaderFixed: Whether the horizontal header should be fixed or not, default to False: bool
     :param isVHeaderFixed: Whether the vertical header should be fixed or not, default to False: bool
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the button should be placed on (default to None): QWidget
 
     :return: The table: Qt.QTableWidget
     """
@@ -315,6 +339,9 @@ def createTab(tabs: List[Tuple[Any, Union[QIcon, None], str]], func: Callable = 
 
     :param tabs: The tabs which should be added to the tab widget: List[Tuple[widget: Any, icon: Union[QIcon, None], label: str]]
     :param func: The follow-up function which gets called when the tab changed, default to None: Callable
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the button should be placed on (default to None): QWidget
+
     :return: The tab: Qt.QTabWidget
     """
 
@@ -346,10 +373,10 @@ def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
     """
     Creates a ``Qt.QMessageBox`` and executes it.
 
-    :param mainWindow: The main window. It's needed to align the message box above the main window; QMainWindow
-    :param boxTitle: The message box's title; str
-    :param boxText: The message box's text; str
-    :param stdBtns: The standard buttons of the message box; Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
+    :param mainWindow: The main window. It's needed to align the message box above the main window: QMainWindow
+    :param boxTitle: The message box's title: str
+    :param boxText: The message box's text: str
+    :param stdBtns: The standard buttons of the message box: Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
     :param icon: The message box's icon (not window icon): QMessageBox.Icon
     :param func: TThe follow-up function which gets called when the buttons get clicked, default to None: Callable
     """
@@ -441,6 +468,12 @@ def createComboBox(items: List[str], placeholder: str = None, isPlaceholderBold:
     Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
 
     :param items: The items which should be added to the dropdown: List[str]
+    :param placeholder: The placeholder of the dropdown (default to None): str
+    :param isPlaceholderBold: Whether the placeholder is bold or not (default to False): bool
+    :param fontStr: The font which has the dropdown's text (default to "Calibri"): str
+    :param fontSize: The font's size (default to 10): int
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the button should be placed on (default to None): QWidget
 
     :return: The dropdown: Qt.QComboBox
     """
@@ -477,7 +510,10 @@ def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: in
     :param minVal: The minimum value of the slider: int
     :param maxVal: The maximum value of the slider: int
     :param singleStep: The single step size: int
+    :param orientation: The orientation of the slide (vertical or horizontal): Qt.Orientation
     :param func: The function which gets called when the slider value has changed, default to None: Callable
+    :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
+    :param parent: The parent widget on which the button should be placed on (default to None): QWidget
 
     :return: The slider: Qt.QSlider
     """
@@ -586,7 +622,7 @@ def updateEditorTable(table: QTableWidget):
     """
     Updates the table (``Qt.QTabelWidget``) in the editor tab.
 
-    :param table: The editor table; QTableWidget
+    :param table: The editor table: QTableWidget
     """
 
     stdItemFont = QFont("Calibri", 12)

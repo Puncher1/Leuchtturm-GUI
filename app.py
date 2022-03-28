@@ -12,7 +12,7 @@ from utils.serial_interface import Serial
 
 from PyQt5 import uic
 
-# Program init
+# App init
 basedir = os.path.dirname(__file__)
 
 appID = 'sca.leuchtturm.v1.0'
@@ -22,7 +22,6 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-- runDropdown placeholder bold: https://stackoverflow.com/questions/71570323/pyqt5-how-to-bold-the-placeholder-of-a-qcombobox
 - updateRunDropdown, when editor table got cleared
 - if "currentTextLabel" got deleted or clear in editor table -> delete "currentTextLabel" from states.json -> update runDropdown
 - Dot-Matrix Display
