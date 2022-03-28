@@ -23,18 +23,18 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 TODO:
 Run Tab
 - Dot-Matrix Display
-    - Add button ...
-        - called "No text showing", when no text is showing (display is off or nothing got selected)
-        - called "View text", when a text is selected AND the display is on. This shows a dialog on which the label and the text is. 
+    - Add button called ...
+        - ... "No text showing", when no text is showing (display is off or nothing got selected)
+        - ... "View text", when a text is selected AND the display is on. This shows a dialog on which the label and the text is. 
         (Text: current text from data receive nucleo board, Label: "currentTextLabel" if available otherwise "N/A")
 - Pre-created texts
     (- Right next to or below the dropdown, there's a button ...
         - called "No text selected", when nothing is selected
         - "Selected: {label of text}")
     - The dropdown is called ...
-        - "No text available" if no text are available
-        - "Select text" if texts are available but nothing selected
-        - "Selected: {label}", if a text is selected    
+        - ... "No text available" if no text are available
+        - ... "Select text" if texts are available but nothing selected
+        - ... "Selected: {label}", if a text is selected    
     
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
