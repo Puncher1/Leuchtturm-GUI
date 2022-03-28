@@ -20,15 +20,9 @@ class RunEvents:
             displayBtn_ONOFF_newState = Dict.invert_ONOFF[displayBtn_ONOFF_state]
             displayBtn_ONOFF_label = displayBtn_ONOFF_state
 
-            data["displayBtn_ONOFF"] = displayBtn_ONOFF_newState
-
         else:
             displayBtn_ONOFF_label = "OFF"
             displayBtn_ONOFF_newState = "ON"
-            data["displayBtn_ONOFF"] = displayBtn_ONOFF_newState
-
-        with open(Path.json_States, "w+") as fdata:
-            json.dump(data, fdata, sort_keys=True, indent=4)
 
 
         if displayBtn_ONOFF_label == "ON":
@@ -38,12 +32,16 @@ class RunEvents:
         else:
             raise TypeError("'displayBtn_ONOFF_label' is neither 'ON' nor 'OFF'.")
 
-        serialPort = Serial(baudrate=115200, port="COM6", timeout=1)
+        serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
         feedback = serialPort.serialWrite(f"display_{displayBtn_ONOFF_newState.lower()}\n", 3)
-        print(f"{feedback=}")
 
         self.mainWindow.displayBtn_ONOFF.setText(displayBtn_ONOFF_label)
         self.mainWindow.displayBtn_ONOFF.setStyleSheet(f"color: #{displayBtn_ONOFF_color}")
+
+        data["displayBtn_ONOFF"] = displayBtn_ONOFF_newState
+
+        with open(Path.json_States, "w+") as fdata:
+            json.dump(data, fdata, sort_keys=True, indent=4)
 
         createMessageBox(
             self.mainWindow,
@@ -78,13 +76,11 @@ class RunEvents:
                 with open(Path.json_States, "w+") as fdata:
                     json.dump(data, fdata, sort_keys=True, indent=4)
 
-            serialPort = Serial(baudrate=115200, port="COM6")
+            serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
             feedback = serialPort.serialWrite(f"update_text\n", 3)
-            print(feedback)
 
             serialPort = Serial(baudrate=115200, port="COM6")
             feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText.encode()))
-            print(feedback.decode())
 
             createMessageBox(
                 self.mainWindow,

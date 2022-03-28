@@ -70,7 +70,8 @@ class Serial:
 
             if feedback is None or feedback == b"":
                 self.ser.close()
-                raise serial.SerialTimeoutException("Read operation timed out and didn't receive any data.")
+                raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback. "
+                                                    f"Please check the data and power connection.")
 
             self.ser.close()
             return feedback

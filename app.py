@@ -48,7 +48,6 @@ Editor Tab
 - edit button to change context of texts
 
 Others
-- docstrings update for utils functions
 - docstrings on_... functions
 
 
