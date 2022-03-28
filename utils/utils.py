@@ -9,7 +9,7 @@ from utils.common import Path
 
 # constants
 STD_FONT = "Calibri"
-STD_FONTSIZE = 10
+STD_FONTSIZE = 11
 HINT_gridLayout = Union[
     Union[
         Tuple[
@@ -92,8 +92,8 @@ class QComboBox(QComboBox):
 
 
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
-                    bold: bool = False, underline: bool = False, italic: bool = False, border_px: int = None,
-                    autoResize: bool = False, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+                    bold: bool = False, underline: bool = False, italic: bool = False, isMarkdown: bool = False,
+                    border_px: int = None, autoResize: bool = False, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QLabel`` with the passed arguments and returns it.
 
@@ -120,6 +120,9 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
         textFont.setItalic(True)
 
     label = QLabel()
+
+    if isMarkdown:
+        label.setTextFormat(Qt.TextFormat.MarkdownText)
 
     if parent is not None:
         label.setParent(parent)
