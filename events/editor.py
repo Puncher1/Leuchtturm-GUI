@@ -23,29 +23,24 @@ class EditorEvents:
                                          "\nbelow."
                                          "\nNOTE: The maximum length of the text is 1500 and the maximum"
                                          "\nlength of the label is 10 characters.",
-                                         fontSize=11
                                          )
 
             inputTextLabel = createLabelText(
                 "Text:",
-                fontSize=11
             )
 
             self.inputText = createLineEdit(
                 1500,
                 placeholder="Enter your text",
-                fontSize=11
             )
 
             inputLabelLabel = createLabelText(
                 "Label: ",
-                fontSize=11
             )
 
             self.inputLabel = createLineEdit(
                 10,
                 placeholder="Enter your label",
-                fontSize=11
             )
 
             dlgNewTextBtnBox = createDialogButtonBox(
@@ -88,7 +83,6 @@ class EditorEvents:
                 titleWidget = createLabelText("Delete Text", fontSize=18, bold=True, underline=True)
                 descWidget = createLabelText(
                     "Please choose the text you want to delete below.",
-                    fontSize=11
                 )
 
                 self.delDropdownWidget = createComboBox(data.keys())

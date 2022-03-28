@@ -79,8 +79,8 @@ class MainWindow(QMainWindow):
 
         self.editorDescWidget = createLabelText(
             "Here, you can add your pre-created texts which you can then simply select and send to the dot-matrix display "
-            "(even if the program has restarted).",
-            fontSize=11
+            "(even if the program has restarted)."
+            
         )
 
         self.editorDescWidget.setWordWrap(True)
@@ -91,21 +91,18 @@ class MainWindow(QMainWindow):
         self.buttonNew = createPushButton(
             text="New",
             buttonSize=(50, 25),
-            fontSize=11,
             func=self.editor.on_btnNew_pressed
         )
 
         self.buttonDel = createPushButton(
             text="Del",
             buttonSize=(50, 25),
-            fontSize=11,
             func=self.editor.on_btnDel_pressed
         )
 
         self.buttonClear = createPushButton(
             text="Clear",
             buttonSize=(50, 25),
-            fontSize=11,
             func=self.editor.on_btnClear_pressed
         )
 
@@ -139,7 +136,7 @@ class MainWindow(QMainWindow):
         self.runDescription = createLabelText(
             "Here, you can change the dot-matrix display."
             "<br>Select a text at <i><b>Pre-created Texts</b></i> and press <b><i>Update text</i></b> to display a text.",
-            fontSize=11,
+            isMarkdown=True,
             rect=(10, 50, 500, 50),
             parent=self.runWidget
         )
@@ -170,7 +167,6 @@ class MainWindow(QMainWindow):
         self.displayBtn_ONOFF = createPushButton(
             (60, 30),
             text=displayBtn_ONOFF_label,
-            fontSize=11,
             textColor=displayBtn_ONOFF_color,
             rect=(20, 180, 0, 0),
             parent=self.runWidget,
@@ -180,7 +176,6 @@ class MainWindow(QMainWindow):
         self.displayBtn_UpdateText = createPushButton(
             (85, 30),
             text="Update text",
-            fontSize=11,
             rect=(120, 180, 0, 0),
             parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
@@ -189,7 +184,6 @@ class MainWindow(QMainWindow):
         self.displayBtn_ShowText = createPushButton(
             (85, 30),
             text="Update text",
-            fontSize=11,
             rect=(120, 180, 0, 0),
             parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
@@ -206,7 +200,6 @@ class MainWindow(QMainWindow):
         self.runningLightBtn_ONOFF = createPushButton(
             (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
             text="ON/OFF",
-            fontSize=11,
             rect=(540, 180, 71, 31),
             parent=self.runWidget,
             func=None       # TODO
@@ -255,7 +248,6 @@ class MainWindow(QMainWindow):
 
         self.precreatedTexts_Dropdown = createComboBox(
             items=list(dataTexts.keys()),
-            fontSize=11,
             placeholder=placeholder,
             isPlaceholderBold=True,
             rect=(40, 310, 151, 23),
