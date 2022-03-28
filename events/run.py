@@ -79,7 +79,7 @@ class RunEvents:
             serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
             feedback = serialPort.serialWrite(f"update_text\n", 3)
 
-            serialPort = Serial(baudrate=115200, port="COM6")
+            serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
             feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText.encode()))
 
             createMessageBox(
