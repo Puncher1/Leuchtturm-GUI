@@ -207,10 +207,24 @@ class EditorEvents:
         btnName = btnName.strip("&")
 
         if btnName == "Yes":
-            with open(Path.json_Texts, "r") as fdata:
-                data = {}
-                with open(Path.json_Texts, "w+") as fdata:
-                    json.dump(data, fdata, sort_keys=True, indent=4)
+            with open(Path.json_Texts, "r") as fdataTexts:
+                dataTexts = json.load(fdataTexts)
+
+                with open(Path.json_States, "r") as fdataStates:
+                    dataStates = json.load(fdataStates)
+
+                if "currentTextLabel" in dataStates.keys():
+                    if dataStates["currentTextLabel"] in list(dataTexts.keys()):
+
+                        del dataStates["currentTextLabel"]
+
+                        with open(Path.json_States, "w+") as fdataStates:
+                            json.dump(dataStates, fdataStates, sort_keys=True, indent=4)
+
+                dataTexts = {}
+
+                with open(Path.json_Texts, "w+") as fdataTexts:
+                    json.dump(dataTexts, fdataTexts, sort_keys=True, indent=4)
 
                 updateEditorTable(self.mainWindow.tableWidget)
                 createMessageBox(self.mainWindow, "Clear Texts", "All texts have been deleted!", [QMessageBox.Ok],

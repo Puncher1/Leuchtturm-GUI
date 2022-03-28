@@ -22,8 +22,7 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-- updateRunDropdown, when editor table got cleared
-- if "currentTextLabel" got deleted or clear in editor table -> delete "currentTextLabel" from states.json -> update runDropdown
+- runDropdwon update to "Selected: asdsadsa" when text selected 
 - Dot-Matrix Display
     - Add button ...
         - called "No text showing", when no text is showing (display is off or nothing got selected)
@@ -37,7 +36,6 @@ Run Tab
         - "No text available" if no text are available
         - "Select text" if texts are available but nothing selected
         - "Selected: {label}", if a text is selected    
-- Remove "Label of Current Text"
     
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
