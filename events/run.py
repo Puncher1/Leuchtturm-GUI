@@ -35,6 +35,8 @@ class RunEvents:
         serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
         feedback = serialPort.serialWrite(f"display_{displayBtn_ONOFF_newState.lower()}\n", 3)
 
+        print(feedback)
+
         self.mainWindow.displayBtn_ONOFF.setText(displayBtn_ONOFF_label)
         self.mainWindow.displayBtn_ONOFF.setStyleSheet(f"color: #{displayBtn_ONOFF_color}")
 
@@ -69,18 +71,20 @@ class RunEvents:
                 data = json.load(fdata)
                 selectedText = data[selectedTextLabel]
 
-            with open(Path.json_States, "r") as fdata:
-                data = json.load(fdata)
-                data["currentTextLabel"] = selectedTextLabel
-
-                with open(Path.json_States, "w+") as fdata:
-                    json.dump(data, fdata, sort_keys=True, indent=4)
+            updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 
             serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
             feedback = serialPort.serialWrite(f"update_text\n", 3)
 
             serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
             feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText.encode()))
+
+            with open(Path.json_States, "r") as fdata:
+                data = json.load(fdata)
+                data["currentTextLabel"] = selectedTextLabel
+
+                with open(Path.json_States, "w+") as fdata:
+                    json.dump(data, fdata, sort_keys=True, indent=4)
 
             updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 

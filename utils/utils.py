@@ -91,9 +91,37 @@ class QComboBox(QComboBox):
         painter.drawControl(QStyle.CE_ComboBoxLabel, opt)
 
 
+# Own Classes
+
+class ScrollLabel(QScrollArea):
+
+    def __init__(self, *args, **kwargs):
+        QScrollArea.__init__(self, *args, **kwargs)
+
+        self.setWidgetResizable(True)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
+
+        content = QWidget(self)
+        self.setWidget(content)
+
+        lay = QVBoxLayout(content)
+
+        self.label = QLabel(content)
+        self.label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+
+        lay.addWidget(self.label)
+
+    def setText(self, text: str):
+        self.label.setText(text)
+
+
+
+
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                     bold: bool = False, underline: bool = False, italic: bool = False, border_px: int = None,
-                    isMarkdown: bool = False, isAutoResize: bool = False, isWordWrap: bool = False,
+                    isMarkdown: bool = False, isAutoResize: bool = False, isWordWrap: bool = False, isScrollable: bool = False,
                     textAlignment: Union[Qt.Alignment, Qt.AlignmentFlag] = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QLabel`` with the passed arguments and returns it.
@@ -127,7 +155,10 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
     if italic:
         textFont.setItalic(True)
 
-    label = QLabel()
+    if isScrollable:
+        label = ScrollLabel()
+    else:
+        label = QLabel()
 
     if isMarkdown:
         label.setTextFormat(Qt.TextFormat.MarkdownText)

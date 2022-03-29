@@ -23,14 +23,10 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 TODO:
 Run Tab
 - Dot-Matrix Display
-    - Add button called ...
-        - ... "No text showing", when no text is showing (display is off or nothing got selected)
-        - ... "View text", when a text is selected AND the display is on. This shows a dialog on which the label and the text is. 
-        (Text: current text from data receive nucleo board, Label: "currentTextLabel" if available otherwise "N/A")
+    - Add label called "Current Text: "
+    - Add label (with border) which shows current text next to other label -> Text receive from nucleo board
+    
 - Pre-created texts
-    (- Right next to or below the dropdown, there's a button ...
-        - called "No text selected", when nothing is selected
-        - "Selected: {label of text}")
     - The dropdown is called ...
         - ... "No text available" if no text are available
         - ... "Select text" if texts are available but nothing selected
@@ -40,6 +36,23 @@ Run Tab
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
 - create functions for things (if needed, done for editor tab)
 - Show text tool tip
+
+Kommunikation mit Nucleo Board:
+- Loop jede X ms
+    - Aufgabe 1): sendet an Board "get_display_state", Nucleo Board sendet State (entweder "ON " oder "OFF") -> update "displayBtn_ONOFF"
+        - manuelle Veränderung von "displayBtn_ONOFF" löschen! Nur von realen state (Nucleo Board State)
+        - Falls Übertragung failed, dann ist "displayBtn_ONOFF" = "OFF"
+    - Aufgabe 2): Aufgabe von Benutzer ausführen 
+    - Aufgabe 3): sendet an Board "get_text", Nucleo Board sendet aktuellen Text, welcher in einer Variable gespeichert ist
+        - Nucleo Board sendet immer 1500 Zeichen (maximaler Text) (Rest ist aufgefüllt)
+        - Aktueller Text wird in json "currentText" gespeichert und neben "Current Text: " ausgegeben (update on change)
+
+- Nucleo Board überprüft, ob PC noch "lebt" (ob Verbindung noch vorhanden ist)
+    - Nucleo Board erhält jede X ms "get_display_state". Falls dieses nicht mehr ankommt nach z.B 1s, dann ist die Verbindung weg
+    - Falls Verbindung weg: Standardtext ausgeben
+    
+- Nucleo Board wird neugestartet (z.B. Strom raus und wieder rein)
+    - Standardtext ausgeben
 
 Editor Tab
 - edit button to change context of texts
@@ -140,7 +153,7 @@ class MainWindow(QMainWindow):
             "Dot-Matrix Display",
             fontSize=13,
             bold=True,
-            rect=(42, 140, 150, 30),
+            rect=(42, 140, 145, 30),
             parent=self.runWidget
         )
 
@@ -163,7 +176,7 @@ class MainWindow(QMainWindow):
             (60, 30),
             text=displayBtn_ONOFF_label,
             textColor=displayBtn_ONOFF_color,
-            rect=(20, 180, 0, 0),
+            rect=(42, 170, 0, 0),
             parent=self.runWidget,
             func=self.run.on_btnDisplayONOFF_pressed
         )
@@ -171,17 +184,37 @@ class MainWindow(QMainWindow):
         self.displayBtn_UpdateText = createPushButton(
             (85, 30),
             text="Update text",
-            rect=(120, 180, 0, 0),
+            rect=(42, 205, 0, 0),
             parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
         )
 
-        self.displayBtn_ShowText = createPushButton(
-            (85, 30),
-            text="Update text",
-            rect=(120, 180, 0, 0),
-            parent=self.runWidget,
-            func=self.run.on_btnUpdateText_pressed
+        with open(Path.json_States, "r") as fdataStates:
+            dataStates = json.load(fdataStates)
+
+        if "currentTextLabel" not in dataStates.keys() or "displayBtn_ONOFF" not in dataStates.keys():
+            viewTextBtn_text = "No text showing"
+
+        else:
+            if "displayBtn_ONOFF" not in dataStates.keys():
+                viewTextBtn_text = "No text showing"
+            else:
+                viewTextBtn_text = "View text"
+
+
+        self.currentText_Label = createLabelText(
+            "Current Text:",
+            bold=True,
+            border_px=1,
+            rect=(42, 240, 100, 20),
+            parent=self.runWidget
+        )
+
+        self.currentText_LineEdit = createLabelText(
+            text="asd",     # json: "currentText"
+            isScrollable=True,
+            rect=(150, 240, 300, 50),
+            parent=self.runWidget
         )
 
         self.runningLightTitle = createLabelText(
@@ -222,7 +255,7 @@ class MainWindow(QMainWindow):
             "Pre-created Texts",
             fontSize=13,
             bold=True,
-            rect=(40, 280, 130, 21),
+            rect=(40, 310, 130, 21),
             parent=self.runWidget
         )
 
@@ -245,7 +278,7 @@ class MainWindow(QMainWindow):
             items=list(dataTexts.keys()),
             placeholder=placeholder,
             isPlaceholderBold=True,
-            rect=(40, 310, 151, 23),
+            rect=(40, 340, 170, 23),
             parent=self.runWidget
         )
 

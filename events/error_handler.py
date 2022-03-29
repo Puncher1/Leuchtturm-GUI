@@ -3,6 +3,8 @@ import traceback
 import re
 import datetime
 import pytz
+import serial
+
 
 from PyQt5.Qt import QMessageBox
 
@@ -36,12 +38,22 @@ def on_error(exc_type, exc_error, exc_tb):
     lines = traceback.format_exception(exc_type, exc_error, exc_tb)
     full_traceback_text = ''.join(lines)
 
-    msgBox = QMessageBox()
-    msgBox.setWindowTitle("An unexpected error has occurred!")
-    msgBox.setText(f"{full_traceback_text}"
-                   f"\n\nPlease contact SCA (Tel. 267) if this error remain.")
-    msgBox.setStandardButtons(QMessageBox.Ok)
-    msgBox.setIcon(QMessageBox.Critical)
+    if exc_type == serial.serialutil.SerialTimeoutException:
+        msgBox = QMessageBox()
+        msgBox.setWindowTitle("Timeout!")
+        msgBox.setText("The operation is canceled due of a timeout while reading/writing from/to nucleo-board."
+                       "\nPlease check the data and power connection.")
+
+        msgBox.setStandardButtons(QMessageBox.Ok)
+        msgBox.setIcon(QMessageBox.Critical)
+
+    else:
+        msgBox = QMessageBox()
+        msgBox.setWindowTitle("An unexpected error has occurred!")
+        msgBox.setText(f"{full_traceback_text}"
+                       f"\n\nPlease contact SCA (Tel. 267) if this error remain.")
+        msgBox.setStandardButtons(QMessageBox.Ok)
+        msgBox.setIcon(QMessageBox.Critical)
 
     cet_dt = __getLocalDatetime("CET")
     cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
@@ -50,4 +62,8 @@ def on_error(exc_type, exc_error, exc_tb):
     errorFile.write(full_traceback_text)
 
     msgBox.exec()
+
+    if exc_type == serial.serialutil.SerialTimeoutException:
+        return
+
     sys.exit(1)
