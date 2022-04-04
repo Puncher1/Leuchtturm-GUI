@@ -1,4 +1,90 @@
+import time
+
 import serial
+from PyQt5.Qt import *
+
+STD_BAUDRATE = 115200
+STD_PORT = "COM6"
+
+
+class Checks:
+
+    def __init__(self, main_window: QMainWindow):
+        super().__init__()
+
+        self.__main_window = main_window
+        self.__ser = Serial(115200, "COM6", 1)
+        self.__task_done = False
+        self.__task = None
+
+        self.__text_exc_count = 0
+        self.__state_exc_count = 0
+
+        self.running = True
+
+    def check_loop(self):
+        wait_pv = 0
+        wait_cyc = 100
+        while True:
+            if self.__text_exc_count >= 3 or self.__state_exc_count >= 3:
+                raise serial.SerialTimeoutException("no response")
+
+            self.__task_done = False
+            if wait_pv >= wait_cyc:
+                wait_pv = 0
+
+                # get actual state
+                if self.running:
+                    try:
+                        state = self.__ser.serialWrite("get_display_state\n", 3)
+                        self.__state_exc_count = 0
+                    except serial.SerialTimeoutException:
+                        self.__state_exc_count += 1
+
+                        state = "..."
+                        self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
+                        self.__main_window.displayBtn_ONOFF.setDisabled(True)
+
+                    finally:
+                        print(f"{state=}")
+                        self.__main_window.displayBtn_ONOFF.setText(state.strip())
+                else:
+                    break
+
+                # get actual text
+                if self.running:
+                    print("get_text")
+                    try:
+                        text = self.__ser.serialWrite("get_text\n", 1500)
+                        self.__text_exc_count = 0
+                    except serial.SerialTimeoutException:
+                        self.__text_exc_count += 1
+                        text = "Loading..."
+                    finally:
+                        print(f"{text=}")
+                        self.__main_window.currentText_ScrollLabel.setText(text.strip())
+                else:
+                    break
+
+            else:
+                wait_pv += 1
+
+            if self.running:
+                if self.__task is not None:
+                    feedback = self.__ser.serialWrite(self.__task, 3)
+                    self.__task_done = True
+            else:
+                break
+
+            time.sleep(0.01)
+
+    def set_task(self, cmd: str):
+        self.__task = cmd
+
+        while not self.__task_done:
+            pass
+
+        return True
 
 
 class Serial:
@@ -13,7 +99,6 @@ class Serial:
         self.ser.port = self.port
         self.ser.timeout = self.timeout
         self.ser.write_timeout = self.timeout
-
 
     def _serial_ports(self):
         """
@@ -34,7 +119,6 @@ class Serial:
                 pass
 
         return result
-
 
     def serialWrite(self, string: str, size: int = None):
         if self.port not in self._serial_ports():
@@ -67,7 +151,7 @@ class Serial:
                 feedback = self.ser.read(size)
             else:
                 feedback = self.ser.read(len(encodedString))
-
+            print(f"{feedback=}")
             if feedback is None or feedback == b"":
                 self.ser.close()
                 raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback. "
@@ -75,7 +159,6 @@ class Serial:
 
             self.ser.close()
             return feedback
-
 
     def serialRead(self, size: int = 1):
         if self.port not in self._serial_ports():
@@ -101,5 +184,3 @@ class Serial:
         self.ser.close()
 
         return result
-
-

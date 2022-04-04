@@ -1,16 +1,14 @@
 import sys, os
 from ctypes import windll
-import time
-import serial
+from multiprocessing import Process
 
 from events.editor import EditorEvents
 from events.run import RunEvents
-from events.error_handler import on_error
+from events.error_handler import ErrorHandler
 from utils.utils import *
 from utils.common import Path, Dict, Color
-from utils.serial_interface import Serial
+from utils.serial_interface import Checks
 
-from PyQt5 import uic
 
 # App init
 basedir = os.path.dirname(__file__)
@@ -23,9 +21,9 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 TODO:
 Run Tab
 - Dot-Matrix Display
-    - Add label called "Current Text: "
-    - Add label (with border) which shows current text next to other label -> Text receive from nucleo board
+    - All buttons are disabled if no connection is there
     
+        
 - Pre-created texts
     - The dropdown is called ...
         - ... "No text available" if no text are available
@@ -41,7 +39,7 @@ Kommunikation mit Nucleo Board:
 - Loop jede X ms
     - Aufgabe 1): sendet an Board "get_display_state", Nucleo Board sendet State (entweder "ON " oder "OFF") -> update "displayBtn_ONOFF"
         - manuelle Veränderung von "displayBtn_ONOFF" löschen! Nur von realen state (Nucleo Board State)
-        - Falls Übertragung failed, dann ist "displayBtn_ONOFF" = "OFF"
+        - Falls Übertragung failed, dann ist button = "..."
     - Aufgabe 2): Aufgabe von Benutzer ausführen 
     - Aufgabe 3): sendet an Board "get_text", Nucleo Board sendet aktuellen Text, welcher in einer Variable gespeichert ist
         - Nucleo Board sendet immer 1500 Zeichen (maximaler Text) (Rest ist aufgefüllt)
@@ -157,25 +155,11 @@ class MainWindow(QMainWindow):
             parent=self.runWidget
         )
 
-        with open(Path.json_States, "r") as fdata:
-            data = json.load(fdata)
-
-        if "displayBtn_ONOFF" in data.keys():
-            displayBtn_ONOFF_label = Dict.invert_ONOFF[data["displayBtn_ONOFF"]]
-        else:
-            displayBtn_ONOFF_label = "ON"
-
-        if displayBtn_ONOFF_label == "ON":
-            displayBtn_ONOFF_color = Color.green
-        elif displayBtn_ONOFF_label == "OFF":
-            displayBtn_ONOFF_color = Color.red
-        else:
-            raise TypeError("'displayBtn_ONOFF_label' is neither 'ON' nor 'OFF'.")
 
         self.displayBtn_ONOFF = createPushButton(
             (60, 30),
-            text=displayBtn_ONOFF_label,
-            textColor=displayBtn_ONOFF_color,
+            text="...",
+            disabled=True,
             rect=(42, 170, 0, 0),
             parent=self.runWidget,
             func=self.run.on_btnDisplayONOFF_pressed
@@ -189,31 +173,17 @@ class MainWindow(QMainWindow):
             func=self.run.on_btnUpdateText_pressed
         )
 
-        with open(Path.json_States, "r") as fdataStates:
-            dataStates = json.load(fdataStates)
+        # self.currentText_Label = createLabelText(
+        #     "Current Text:",
+        #     bold=True,
+        #     rect=(42, 265, 100, 20),
+        #     parent=self.runWidget
+        # )
 
-        if "currentTextLabel" not in dataStates.keys() or "displayBtn_ONOFF" not in dataStates.keys():
-            viewTextBtn_text = "No text showing"
-
-        else:
-            if "displayBtn_ONOFF" not in dataStates.keys():
-                viewTextBtn_text = "No text showing"
-            else:
-                viewTextBtn_text = "View text"
-
-
-        self.currentText_Label = createLabelText(
-            "Current Text:",
-            bold=True,
-            border_px=1,
-            rect=(42, 240, 100, 20),
-            parent=self.runWidget
-        )
-
-        self.currentText_LineEdit = createLabelText(
-            text="asd",     # json: "currentText"
+        self.currentText_ScrollLabel = createLabelText(
+            text="Loading...",     # json: "currentText"
             isScrollable=True,
-            rect=(150, 240, 300, 50),
+            rect=(43, 240, 300, 50),
             parent=self.runWidget
         )
 
@@ -255,7 +225,7 @@ class MainWindow(QMainWindow):
             "Pre-created Texts",
             fontSize=13,
             bold=True,
-            rect=(40, 310, 130, 21),
+            rect=(40, 335, 130, 21),
             parent=self.runWidget
         )
 
@@ -278,7 +248,7 @@ class MainWindow(QMainWindow):
             items=list(dataTexts.keys()),
             placeholder=placeholder,
             isPlaceholderBold=True,
-            rect=(40, 340, 170, 23),
+            rect=(40, 365, 170, 23),
             parent=self.runWidget
         )
 
@@ -308,12 +278,20 @@ app = QApplication([])
 app.setStyle(proxyStyle)
 app.setWindowIcon(QIcon(os.path.join(basedir, Path.ico_MainIcon)))
 
-sys.excepthook = on_error
-
 window = MainWindow()
 window.show()
 
-app.exec()
+error_handler = ErrorHandler(window)
+sys.excepthook = error_handler.on_error
+
+checks = Checks(window)
+threadpool = QThreadPool()
+thread = Thread(checks.check_loop)
+thread.signals.error.connect(error_handler.on_error)
+threadpool.start(thread)
+
+app.exec_()
+checks.running = False
 
 
 

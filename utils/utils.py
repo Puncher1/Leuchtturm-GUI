@@ -1,3 +1,5 @@
+import sys
+
 import PyQt5.QtWidgets
 from PyQt5.Qt import *
 from typing import Tuple, Any, List, Union, Callable, Dict, Optional
@@ -5,6 +7,7 @@ import functools
 import json
 
 from utils.common import Path
+from utils.threads import Thread
 
 
 # constants
@@ -117,8 +120,6 @@ class ScrollLabel(QScrollArea):
         self.label.setText(text)
 
 
-
-
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                     bold: bool = False, underline: bool = False, italic: bool = False, border_px: int = None,
                     isMarkdown: bool = False, isAutoResize: bool = False, isWordWrap: bool = False, isScrollable: bool = False,
@@ -190,7 +191,7 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
     return label
 
 
-def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
+def createPushButton(buttonSize: Tuple[int, int], disabled: bool = False, text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                      textColor: str = None, bold: bool = False, underline: bool = False, italic: bool = False, image: Tuple[str, Tuple[int, int]] = None,
                      toolTip: str = None, func: Callable = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
@@ -261,6 +262,8 @@ def createPushButton(buttonSize: Tuple[int, int], text: str = None, font: str = 
 
     if func is not None:
         button.clicked.connect(func)
+
+    button.setDisabled(disabled)
 
     return button
 
@@ -423,7 +426,6 @@ def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
         msgBox.rejected.connect(lambda: func(msgBox.clickedButton().text()))
 
     msgBox.exec()
-
 
 def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, winFlags: List[Qt.WindowFlags] = None,
                  layout: Union[QGridLayout, QHBoxLayout, QVBoxLayout] = None):
@@ -733,10 +735,6 @@ def updateRunDropdown(comboBox: QComboBox):
 
     comboBox.setPlaceholderText(placeholder)
     comboBox.setCurrentIndex(-1)
-
-
-# def updateCurrentText(lineEdit: QLineEdit):
-
 
 
 def checkValidStr(string: str):
