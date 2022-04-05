@@ -22,3 +22,4 @@ class Color:
     green = "19ba00"
     red = "ff1212"
     yellow_wait = "b56700"
+    black = "000000"
