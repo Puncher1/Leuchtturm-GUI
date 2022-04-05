@@ -1,10 +1,44 @@
 import time
+from typing import Optional
 
 import serial
 from PyQt5.Qt import *
 
-STD_BAUDRATE = 115200
-STD_PORT = "COM6"
+
+_STD_BAUDRATE = 115200
+_STD_PORT = "COM6"
+_STD_TIMEOUT = 1     # seconds
+
+
+class _Comms:
+
+    def __init__(self, baudrate: int = _STD_BAUDRATE, port: str = _STD_PORT, timeout: int = _STD_TIMEOUT):
+        self.__ser = _Serial(baudrate, port, timeout)
+
+    def get_board_state_ser(self):
+        result = self.__ser.serialWrite("get_board_state\n", 3)
+        return result
+
+    def get_display_state_ser(self):
+        result = self.__ser.serialWrite("get_display_state\n", 3)
+        return result
+
+    def get_text_ser(self):
+        result = self.__ser.serialWrite("get_text\n", 1500)
+        return result
+
+
+    def exec_task_ser(self, task: str, text: Optional[str]):
+        if task in ["display_on\n", "display_off\n"]:
+            feedback = self.__ser.serialWrite(task, 3)
+
+        if task == "update_text\n" and text is not None:
+            feedback = self.__ser.serialWrite("update_text\n", 3)
+
+        else:
+            raise ValueError(f"'{task}' is not a valid task")
+
+        return feedback
 
 
 class Tasks:
@@ -13,9 +47,12 @@ class Tasks:
         super().__init__()
 
         self.__main_window = main_window
-        self.__ser = Serial(115200, "COM6", 1)
-        self.__task_done = False
+        self.__comms = _Comms()
+
         self.__task = None
+        self.__text = None
+        self.__feedback = None
+        self.__task_done = False
 
         self.__text_exc_count = 0
         self.__state_exc_count = 0
@@ -41,15 +78,13 @@ class Tasks:
 
                 # get actual state
                 try:
-                    state = self.__ser.serialWrite("get_display_state\n", 3)
+                    state = self.__comms.get_display_state_ser()
                     self.__state_exc_count = 0
                 except serial.SerialTimeoutException:
                     self.__state_exc_count += 1
-
                     state = "..."
                     self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
                     self.__main_window.displayBtn_ONOFF.setDisabled(True)
-
                 finally:
                     print(f"{state=}")
                     self.__main_window.displayBtn_ONOFF.setText(state.strip())
@@ -59,7 +94,7 @@ class Tasks:
 
                 # get actual text
                 try:
-                    text = self.__ser.serialWrite("get_text\n", 1500)
+                    text = self.__comms.get_text_ser()
                     self.__text_exc_count = 0
                 except serial.SerialTimeoutException:
                     self.__text_exc_count += 1
@@ -75,21 +110,36 @@ class Tasks:
                 break
 
             if self.__task is not None:
-                feedback = self.__ser.serialWrite(self.__task, 3)
+                feedback = self.__comms.exec_task_ser(self.__task, self.__text)
+                self.__feedback = feedback
                 self.__task_done = True
+                self.__task = None
 
             time.sleep(0.01)
 
-    def set_task(self, cmd: str):
+    def __set_task(self, cmd: str, text: str = None):
         self.__task = cmd
+        self.__text = text
 
         while not self.__task_done:
             pass
 
-        return True
+        return self.__feedback
+
+    def set_display_state(self, state: bool):
+        if state:
+            feedback = self.__set_task("display_on\n")
+        else:
+            feedback = self.__set_task("display_off\n")
+
+        return feedback
+
+    def set_text(self, text: str):
+        feedback = self.__set_task("update_text\n", text)
+        return feedback
 
 
-class Serial:
+class _Serial:
 
     def __init__(self, baudrate: int, port: str, timeout: int = None):
         self.baudrate = baudrate

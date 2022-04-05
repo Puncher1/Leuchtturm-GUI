@@ -73,6 +73,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.editor = EditorEvents(self)
         self.run = RunEvents(self)
+        self.tasks = Tasks(self)
 
         self.setWindowTitle("Leuchtturm")
         self.setFixedSize(700, 500)
@@ -284,14 +285,13 @@ window.show()
 error_handler = ErrorHandler(window)
 sys.excepthook = error_handler.on_error
 
-tasks = Tasks(window)
 threadpool = QThreadPool()
-thread = Thread(tasks.loop)
+thread = Thread(window.tasks.loop)
 thread.signals.error.connect(error_handler.on_error)
 threadpool.start(thread)
 
 app.exec_()
-tasks.running = False
+window.tasks.running = False
 
 
 
