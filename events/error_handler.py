@@ -48,7 +48,7 @@ class ErrorHandler:
             if str(exc_error) == "no response":
                 createMessageBox(
                     self.main_window,
-                    "444 No Response",
+                    "No Response",
                     "The nucleo-board don't respond while communicating to it."
                     "\nPlease check the data and power connection.",
                     [QMessageBox.Ok],
@@ -57,7 +57,7 @@ class ErrorHandler:
             else:
                 createMessageBox(
                     self.main_window,
-                    "408 Timeout",
+                    "Timeout",
                     "The operation is canceled due of a timeout while reading/writing from/to nucleo-board."
                     "\nPlease check the data and power connection.",
                     [QMessageBox.Ok],
@@ -74,11 +74,11 @@ class ErrorHandler:
                 QMessageBox.Critical
             )
 
-        cet_dt = self.__getLocalDatetime("CET")
-        cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
+            cet_dt = self.__getLocalDatetime("CET")
+            cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
 
-        errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
-        errorFile.write(full_traceback_text)
+            errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
+            errorFile.write(full_traceback_text)
 
         if exc_type == serial.serialutil.SerialTimeoutException and str(exc_error) not in ["no response"]:
             return
