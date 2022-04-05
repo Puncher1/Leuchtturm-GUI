@@ -9,7 +9,8 @@ class ThreadSignals(QObject):
     Defines the signals available from a running worker thread.
 
     Supported signals are:
-
+    error
+        Takes 3 objects which map the traceback.
     """
     error = pyqtSignal(object, object, object)
 
@@ -41,6 +42,7 @@ class Thread(QRunnable):
         """
         Initialise the runner function with passed args, kwargs.
         """
+
         try:
             print("run fn")
             self.fn(*self.args, **self.kwargs)

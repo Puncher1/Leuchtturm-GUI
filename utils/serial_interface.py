@@ -7,7 +7,7 @@ STD_BAUDRATE = 115200
 STD_PORT = "COM6"
 
 
-class Checks:
+class Tasks:
 
     def __init__(self, main_window: QMainWindow):
         super().__init__()
@@ -22,10 +22,13 @@ class Checks:
 
         self.running = True
 
-    def check_loop(self):
+    def loop(self):
         wait_pv = 0
         wait_cyc = 100
         while True:
+            if not self.running:
+                break
+
             if self.__text_exc_count >= 3 or self.__state_exc_count >= 3:
                 raise serial.SerialTimeoutException("no response")
 
@@ -33,48 +36,47 @@ class Checks:
             if wait_pv >= wait_cyc:
                 wait_pv = 0
 
+                if not self.running:
+                    break
+
                 # get actual state
-                if self.running:
-                    try:
-                        state = self.__ser.serialWrite("get_display_state\n", 3)
-                        self.__state_exc_count = 0
-                    except serial.SerialTimeoutException:
-                        self.__state_exc_count += 1
+                try:
+                    state = self.__ser.serialWrite("get_display_state\n", 3)
+                    self.__state_exc_count = 0
+                except serial.SerialTimeoutException:
+                    self.__state_exc_count += 1
 
-                        state = "..."
-                        self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
-                        self.__main_window.displayBtn_ONOFF.setDisabled(True)
+                    state = "..."
+                    self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
+                    self.__main_window.displayBtn_ONOFF.setDisabled(True)
 
-                    finally:
-                        print(f"{state=}")
-                        self.__main_window.displayBtn_ONOFF.setText(state.strip())
-                else:
+                finally:
+                    print(f"{state=}")
+                    self.__main_window.displayBtn_ONOFF.setText(state.strip())
+
+                if not self.running:
                     break
 
                 # get actual text
-                if self.running:
-                    print("get_text")
-                    try:
-                        text = self.__ser.serialWrite("get_text\n", 1500)
-                        self.__text_exc_count = 0
-                    except serial.SerialTimeoutException:
-                        self.__text_exc_count += 1
-                        text = "Loading..."
-                    finally:
-                        print(f"{text=}")
-                        self.__main_window.currentText_ScrollLabel.setText(text.strip())
-                else:
-                    break
+                try:
+                    text = self.__ser.serialWrite("get_text\n", 1500)
+                    self.__text_exc_count = 0
+                except serial.SerialTimeoutException:
+                    self.__text_exc_count += 1
+                    text = "Loading..."
+                finally:
+                    print(f"{text=}")
+                    self.__main_window.currentText_ScrollLabel.setText(text.strip())
 
             else:
                 wait_pv += 1
 
-            if self.running:
-                if self.__task is not None:
-                    feedback = self.__ser.serialWrite(self.__task, 3)
-                    self.__task_done = True
-            else:
+            if not self.running:
                 break
+
+            if self.__task is not None:
+                feedback = self.__ser.serialWrite(self.__task, 3)
+                self.__task_done = True
 
             time.sleep(0.01)
 

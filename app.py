@@ -7,7 +7,7 @@ from events.run import RunEvents
 from events.error_handler import ErrorHandler
 from utils.utils import *
 from utils.common import Path, Dict, Color
-from utils.serial_interface import Checks
+from utils.serial_interface import Tasks
 
 
 # App init
@@ -284,14 +284,14 @@ window.show()
 error_handler = ErrorHandler(window)
 sys.excepthook = error_handler.on_error
 
-checks = Checks(window)
+tasks = Tasks(window)
 threadpool = QThreadPool()
-thread = Thread(checks.check_loop)
+thread = Thread(tasks.loop)
 thread.signals.error.connect(error_handler.on_error)
 threadpool.start(thread)
 
 app.exec_()
-checks.running = False
+tasks.running = False
 
 
 
