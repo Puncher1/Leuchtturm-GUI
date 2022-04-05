@@ -84,6 +84,7 @@ class Tasks:
         while True:
             if not self.running:
                 break
+
             if self.__board_state_timeout:
                 print("board timeout")
                 if not self.__close_no_response_error:
@@ -122,8 +123,6 @@ class Tasks:
                     self.__board_state_timeout = True
                     continue
 
-                print(f"{board_state=}")
-
                 if not self.running:
                     break
 
@@ -135,7 +134,6 @@ class Tasks:
                 except serial.SerialTimeoutException:
                     raise serial.SerialTimeoutException("unexpected timeout")
                 else:
-                    print(f"{state=}")
                     if state == "ON ":
                         color = Color.green
                     elif state == "OFF":
@@ -157,7 +155,6 @@ class Tasks:
                 except serial.SerialTimeoutException:
                     raise serial.SerialTimeoutException("unexpected timeout")
                 else:
-                    print(f"{text=}")
                     self.__main_window.currentText_ScrollLabel.setText(text.strip())
 
             else:
@@ -262,7 +259,8 @@ class _Serial:
                 feedback = self.ser.read(size)
             else:
                 feedback = self.ser.read(len(encodedString))
-
+            print(f"{self.ser.baudrate=}, {self.ser.port=}")
+            print(f"{feedback=}, {encodedString=}")
             if feedback is None or feedback == b"":
                 self.ser.close()
                 raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback. "

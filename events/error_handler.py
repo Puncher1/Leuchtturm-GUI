@@ -20,6 +20,7 @@ class ErrorHandler:
 
     def __init__(self, main_window: QMainWindow):
         self.__main_window = main_window
+        self.__no_response_msg_box = None
 
     def __getLocalDatetime(self, tz_str: str):
         """
@@ -99,9 +100,8 @@ class ErrorHandler:
 
     def on_response_error(self, state: bool):
 
-        msg_box = None
         if not state:
-            msg_box = createMessageBox(
+            self.__no_response_msg_box = createMessageBox(
                 self.__main_window,
                 "No Response",
                 "The nucleo-board don't respond while communicating to it."
@@ -110,7 +110,8 @@ class ErrorHandler:
                 QMessageBox.Critical,
                 return_=True
             )
-            msg_box.exec()
+            self.__no_response_msg_box.exec()
         else:
-            if msg_box is not None:
-                msg_box.close()
+            if self.__no_response_msg_box is not None:
+                self.__no_response_msg_box.close()
+
