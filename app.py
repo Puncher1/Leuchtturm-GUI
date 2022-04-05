@@ -37,7 +37,7 @@ Run Tab
 
 Kommunikation mit Nucleo Board:
 - Loop jede X ms
-    - Aufgabe 1): sendet an Board "get_display_state", Nucleo Board sendet State (entweder "ON " oder "OFF") -> update "displayBtn_ONOFF"
+    - Aufgabe 1): sendet an Board "get_display_state", Nucleo Board sendet State (entweder "ON " oder "OFF") -> update button mit .text()
         - manuelle Veränderung von "displayBtn_ONOFF" löschen! Nur von realen state (Nucleo Board State)
         - Falls Übertragung failed, dann ist button = "..."
     - Aufgabe 2): Aufgabe von Benutzer ausführen 
