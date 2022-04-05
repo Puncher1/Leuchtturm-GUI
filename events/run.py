@@ -1,13 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app import MainWindow
+
 import json
 
 from utils.utils import *
 from utils.common import Path, Dict, Color
-from utils.serial_interface import Serial
-
 
 class RunEvents:
 
-    def __init__(self, mainWindow):
+    def __init__(self, mainWindow: MainWindow):
         self.mainWindow = mainWindow
 
 
@@ -15,40 +18,22 @@ class RunEvents:
         with open(Path.json_States, "r") as fdata:
             data = json.load(fdata)
 
-        if "displayBtn_ONOFF" in data.keys():
-            displayBtn_ONOFF_state = data["displayBtn_ONOFF"]
-            displayBtn_ONOFF_newState = Dict.invert_ONOFF[displayBtn_ONOFF_state]
-            displayBtn_ONOFF_label = displayBtn_ONOFF_state
+        displayBtn_ONOFF_text = self.mainWindow.displayBtn_ONOFF.text()
 
+        if displayBtn_ONOFF_text == "ON":
+            displayBtn_ONOFF_task = "OFF"
+        elif displayBtn_ONOFF_text == "OFF":
+            displayBtn_ONOFF_task = "ON"
         else:
-            displayBtn_ONOFF_label = "OFF"
-            displayBtn_ONOFF_newState = "ON"
+            raise ValueError("'displayBtn_ONOFF_text' is neither 'ON' nor 'OFF'.")
 
-
-        if displayBtn_ONOFF_label == "ON":
-            displayBtn_ONOFF_color = Color.green
-        elif displayBtn_ONOFF_label == "OFF":
-            displayBtn_ONOFF_color = Color.red
-        else:
-            raise TypeError("'displayBtn_ONOFF_label' is neither 'ON' nor 'OFF'.")
-
-        serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
-        feedback = serialPort.serialWrite(f"display_{displayBtn_ONOFF_newState.lower()}\n", 3)
-
+        feedback = self.mainWindow.tasks.set_display_state(displayBtn_ONOFF_task)
         print(feedback)
-
-        self.mainWindow.displayBtn_ONOFF.setText(displayBtn_ONOFF_label)
-        self.mainWindow.displayBtn_ONOFF.setStyleSheet(f"color: #{displayBtn_ONOFF_color}")
-
-        data["displayBtn_ONOFF"] = displayBtn_ONOFF_newState
-
-        with open(Path.json_States, "w+") as fdata:
-            json.dump(data, fdata, sort_keys=True, indent=4)
 
         createMessageBox(
             self.mainWindow,
             "Display ON/OFF",
-            f"Successfully turned {displayBtn_ONOFF_newState.lower()} display!",
+            f"Successfully turned {displayBtn_ONOFF_task.lower()} display!",
             [QMessageBox.Ok],
             QMessageBox.Information
         )
@@ -73,11 +58,7 @@ class RunEvents:
 
             updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 
-            serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
-            feedback = serialPort.serialWrite(f"update_text\n", 3)
-
-            serialPort = Serial(baudrate=115200, port="COM6", timeout=2)
-            feedback = serialPort.serialWrite(f"{selectedText}\n", len(selectedText.encode()))
+            feedback = self.mainWindow.tasks.set_text(selectedText, len(selectedText.encode()))
 
             with open(Path.json_States, "r") as fdata:
                 data = json.load(fdata)

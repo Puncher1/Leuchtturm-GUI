@@ -1,5 +1,8 @@
 import time
+import inspect
 from typing import Optional
+
+from utils.common import Color
 
 import serial
 from PyQt5.Qt import *
@@ -54,19 +57,26 @@ class Tasks:
         self.__feedback = None
         self.__task_done = False
 
-        self.__text_exc_count = 0
-        self.__state_exc_count = 0
+        self.__board_state_exc_count = 0
 
         self.running = True
 
     def loop(self):
+        caller_stack = inspect.stack()
+        caller_class = caller_stack[1][0].f_locals["self"].__class__.__name__
+        caller_method = caller_stack[1][0].f_code.co_name
+        caller = f"{caller_class}.{caller_method}"
+
+        if not caller == "Thread.run":
+            raise RuntimeError("Loop was not called in thread.")
+
         wait_pv = 0
         wait_cyc = 100
         while True:
             if not self.running:
                 break
 
-            if self.__text_exc_count >= 3 or self.__state_exc_count >= 3:
+            if self.__board_state_exc_count >= 2:
                 raise serial.SerialTimeoutException("no response")
 
             self.__task_done = False
@@ -76,17 +86,36 @@ class Tasks:
                 if not self.running:
                     break
 
+                # get board state
+                try:
+                    board_state = self.__comms.get_board_state_ser()
+                    self.__board_state_exc_count = 0
+
+                except serial.SerialTimeoutException:
+                    self.__board_state_exc_count += 1
+
+                if not self.running:
+                    break
+
                 # get actual state
                 try:
                     state = self.__comms.get_display_state_ser()
-                    self.__state_exc_count = 0
+
+                    if state == "ON":
+                        color = Color.green
+                    elif state == "OFF":
+                        color = Color.red
+                    else:
+                        raise ValueError("'state' is neither 'ON' nor 'OFF'.")
+
                 except serial.SerialTimeoutException:
-                    self.__state_exc_count += 1
                     state = "..."
-                    self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
+                    color = Color.black
                     self.__main_window.displayBtn_ONOFF.setDisabled(True)
+
                 finally:
                     print(f"{state=}")
+                    self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #{}".format(color))
                     self.__main_window.displayBtn_ONOFF.setText(state.strip())
 
                 if not self.running:
@@ -95,9 +124,7 @@ class Tasks:
                 # get actual text
                 try:
                     text = self.__comms.get_text_ser()
-                    self.__text_exc_count = 0
                 except serial.SerialTimeoutException:
-                    self.__text_exc_count += 1
                     text = "Loading..."
                 finally:
                     print(f"{text=}")
@@ -126,11 +153,13 @@ class Tasks:
 
         return self.__feedback
 
-    def set_display_state(self, state: bool):
-        if state:
+    def set_display_state(self, state: str):
+        if state == "ON":
             feedback = self.__set_task("display_on\n")
-        else:
+        elif state == "OFF":
             feedback = self.__set_task("display_off\n")
+        else:
+            raise ValueError("'state' is neither 'ON' nor 'OFF'.")
 
         return feedback
 
