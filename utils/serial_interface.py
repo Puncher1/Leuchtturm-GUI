@@ -1,8 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app import MainWindow
+
 import time
 import inspect
 from typing import Optional
 
+from events.error_handler import ErrorHandler
 from utils.common import Color
+from utils.utils import createMessageBox
+from utils.threads import Thread
 
 import serial
 from PyQt5.Qt import *
@@ -46,7 +54,7 @@ class _Comms:
 
 class Tasks:
 
-    def __init__(self, main_window: QMainWindow):
+    def __init__(self, main_window: MainWindow):
         super().__init__()
 
         self.__main_window = main_window
@@ -57,30 +65,49 @@ class Tasks:
         self.__feedback = None
         self.__task_done = False
 
-        self.__board_state_exc_count = 0
+        self.__board_state_timeout = False
+        self.__close_no_response_error = False
 
         self.running = True
 
-    def loop(self):
+    def loop(self, progress_callback):
         caller_stack = inspect.stack()
         caller_class = caller_stack[1][0].f_locals["self"].__class__.__name__
         caller_method = caller_stack[1][0].f_code.co_name
         caller = f"{caller_class}.{caller_method}"
 
         if not caller == "Thread.run":
-            raise RuntimeError("Loop was not called in thread.")
+            raise Exception("Loop was not called in thread.")
 
         wait_pv = 0
         wait_cyc = 100
         while True:
             if not self.running:
                 break
+            if self.__board_state_timeout:
+                print("board timeout")
+                if not self.__close_no_response_error:
+                    progress_callback.emit(self.__close_no_response_error)
 
-            if self.__board_state_exc_count >= 2:
-                raise serial.SerialTimeoutException("no response")
+                self.__close_no_response_error = True
+
+                try:
+                    board_state = self.__comms.get_board_state_ser()
+                except serial.SerialTimeoutException:
+                    pass
+                else:
+                    self.__board_state_timeout = False
+
+                continue
+            else:
+                if self.__close_no_response_error:
+                    progress_callback.emit(self.__close_no_response_error)
+                    self.__close_no_response_error = False
+
 
             self.__task_done = False
             if wait_pv >= wait_cyc:
+                print("sec loop")
                 wait_pv = 0
 
                 if not self.running:
@@ -89,10 +116,13 @@ class Tasks:
                 # get board state
                 try:
                     board_state = self.__comms.get_board_state_ser()
-                    self.__board_state_exc_count = 0
-
+                    print("board_state")
                 except serial.SerialTimeoutException:
-                    self.__board_state_exc_count += 1
+                    print("board_error")
+                    self.__board_state_timeout = True
+                    continue
+
+                print(f"{board_state=}")
 
                 if not self.running:
                     break
@@ -100,21 +130,19 @@ class Tasks:
                 # get actual state
                 try:
                     state = self.__comms.get_display_state_ser()
+                    state = state.decode()
 
-                    if state == "ON":
+                except serial.SerialTimeoutException:
+                    raise serial.SerialTimeoutException("unexpected timeout")
+                else:
+                    print(f"{state=}")
+                    if state == "ON ":
                         color = Color.green
                     elif state == "OFF":
                         color = Color.red
                     else:
                         raise ValueError("'state' is neither 'ON' nor 'OFF'.")
 
-                except serial.SerialTimeoutException:
-                    state = "..."
-                    color = Color.black
-                    self.__main_window.displayBtn_ONOFF.setDisabled(True)
-
-                finally:
-                    print(f"{state=}")
                     self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #{}".format(color))
                     self.__main_window.displayBtn_ONOFF.setText(state.strip())
 
@@ -124,9 +152,11 @@ class Tasks:
                 # get actual text
                 try:
                     text = self.__comms.get_text_ser()
+                    text = text.decode()
+
                 except serial.SerialTimeoutException:
-                    text = "Loading..."
-                finally:
+                    raise serial.SerialTimeoutException("unexpected timeout")
+                else:
                     print(f"{text=}")
                     self.__main_window.currentText_ScrollLabel.setText(text.strip())
 
@@ -232,7 +262,7 @@ class _Serial:
                 feedback = self.ser.read(size)
             else:
                 feedback = self.ser.read(len(encodedString))
-            print(f"{feedback=}")
+
             if feedback is None or feedback == b"":
                 self.ser.close()
                 raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback. "

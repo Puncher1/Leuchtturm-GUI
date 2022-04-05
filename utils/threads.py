@@ -1,5 +1,6 @@
 import traceback, sys
 
+import serial
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
@@ -13,6 +14,8 @@ class ThreadSignals(QObject):
         Takes 3 objects which map the traceback.
     """
     error = pyqtSignal(object, object, object)
+    progress = pyqtSignal(bool)
+
 
 class Thread(QRunnable):
     """
@@ -36,6 +39,8 @@ class Thread(QRunnable):
         self.kwargs = kwargs
         self.signals = ThreadSignals()
 
+        self.kwargs['progress_callback'] = self.signals.progress
+
 
     @pyqtSlot()
     def run(self):
@@ -47,6 +52,8 @@ class Thread(QRunnable):
             print("run fn")
             self.fn(*self.args, **self.kwargs)
         except:
+            print("except signal")
+
             error = sys.exc_info()[1]
             etype = type(error)
             etrace = error.__traceback__

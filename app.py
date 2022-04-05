@@ -57,6 +57,7 @@ Editor Tab
 
 Others
 - docstrings on_... functions
+- PEP8
 
 
 """
@@ -169,6 +170,7 @@ class MainWindow(QMainWindow):
         self.displayBtn_UpdateText = createPushButton(
             (85, 30),
             text="Update text",
+            disabled=True,
             rect=(42, 205, 0, 0),
             parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
@@ -286,12 +288,14 @@ error_handler = ErrorHandler(window)
 sys.excepthook = error_handler.on_error
 
 threadpool = QThreadPool()
-thread = Thread(window.tasks.loop)
-thread.signals.error.connect(error_handler.on_error)
-threadpool.start(thread)
+thread_task = Thread(window.tasks.loop)
+thread_task.signals.error.connect(error_handler.on_error)
+thread_task.signals.progress.connect(error_handler.on_response_error)
+threadpool.start(thread_task)
 
 app.exec_()
 window.tasks.running = False
+sys.exit(1)
 
 
 

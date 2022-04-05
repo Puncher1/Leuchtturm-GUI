@@ -403,7 +403,7 @@ def createTab(tabs: List[Tuple[Any, Union[QIcon, None], str]], func: Callable = 
 
 def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
                      stdBtns: List[Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]], icon: QMessageBox.Icon,
-                     func: Callable = None):
+                     func: Callable = None, return_: bool = False):
     """
     Creates a ``Qt.QMessageBox`` and executes it.
 
@@ -412,7 +412,8 @@ def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
     :param boxText: The message box's text: str
     :param stdBtns: The standard buttons of the message box: Union[QMessageBox.StandardButtons, QMessageBox.StandardButton]
     :param icon: The message box's icon (not window icon): QMessageBox.Icon
-    :param func: TThe follow-up function which gets called when the buttons get clicked, default to None: Callable
+    :param func: The follow-up function which gets called when the buttons get clicked, default to None: Callable
+    :param return_: Whether the message box should be return or not
     """
 
     msgBox = QMessageBox(mainWindow)
@@ -425,7 +426,11 @@ def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
         msgBox.accepted.connect(lambda: func(msgBox.clickedButton().text()))
         msgBox.rejected.connect(lambda: func(msgBox.clickedButton().text()))
 
-    msgBox.exec()
+    if return_:
+        return msgBox
+    else:
+        msgBox.exec()
+
 
 def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, winFlags: List[Qt.WindowFlags] = None,
                  layout: Union[QGridLayout, QHBoxLayout, QVBoxLayout] = None):
