@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app import MainWindow
@@ -7,13 +8,13 @@ import time
 import inspect
 from typing import Optional
 
+import serial
+from PyQt5.Qt import *
+
 from events.error_handler import ErrorHandler
 from utils.common import Color
 from utils.utils import createMessageBox
 from utils.threads import Thread
-
-import serial
-from PyQt5.Qt import *
 
 
 _STD_BAUDRATE = 115200
@@ -27,24 +28,23 @@ class _Comms:
         self.__ser = _Serial(baudrate, port, timeout)
 
     def get_board_state_ser(self):
-        result = self.__ser.serialWrite("get_board_state\n", 3)
+        result = self.__ser.serialWrite("get_board_state\n", 1500)
         return result
 
     def get_display_state_ser(self):
-        result = self.__ser.serialWrite("get_display_state\n", 3)
+        result = self.__ser.serialWrite("get_display_state\n", 1500)
         return result
 
     def get_text_ser(self):
         result = self.__ser.serialWrite("get_text\n", 1500)
         return result
 
-
     def exec_task_ser(self, task: str, text: Optional[str]):
         if task in ["display_on\n", "display_off\n"]:
-            feedback = self.__ser.serialWrite(task, 3)
+            feedback = self.__ser.serialWrite(task, 1500)
 
         if task == "update_text\n" and text is not None:
-            feedback = self.__ser.serialWrite("update_text\n", 3)
+            feedback = self.__ser.serialWrite("update_text\n", 1500)
 
         else:
             raise ValueError(f"'{task}' is not a valid task")
@@ -134,7 +134,7 @@ class Tasks:
                 except serial.SerialTimeoutException:
                     raise serial.SerialTimeoutException("unexpected timeout")
                 else:
-                    if state == "ON ":
+                    if state == "ON":
                         color = Color.green
                     elif state == "OFF":
                         color = Color.red
@@ -259,6 +259,9 @@ class _Serial:
                 feedback = self.ser.read(size)
             else:
                 feedback = self.ser.read(len(encodedString))
+
+            feedback = feedback.split(b"\0")[0]
+
             print(f"{self.ser.baudrate=}, {self.ser.port=}")
             print(f"{feedback=}, {encodedString=}")
             if feedback is None or feedback == b"":
