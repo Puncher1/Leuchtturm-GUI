@@ -20,30 +20,16 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-- Dot-Matrix Display
-    - All buttons are disabled if no connection is there
-    
         
-- Pre-created texts
-    - The dropdown is called ...
-        - ... "No text available" if no text are available
-        - ... "Select text" if texts are available but nothing selected
-        - ... "Selected: {label}", if a text is selected    
-    
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
 - run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
-- create functions for things (if needed, done for editor tab)
-- Show text tool tip
+- create functions for things
 
-Kommunikation mit Nucleo Board:
-- Loop jede X ms
-    - Aufgabe 1): sendet an Board "get_display_state", Nucleo Board sendet State (entweder "ON " oder "OFF") -> update button mit .text()
-        - manuelle Veränderung von "displayBtn_ONOFF" löschen! Nur von realen state (Nucleo Board State)
-        - Falls Übertragung failed, dann ist button = "..."
-    - Aufgabe 2): Aufgabe von Benutzer ausführen 
-    - Aufgabe 3): sendet an Board "get_text", Nucleo Board sendet aktuellen Text, welcher in einer Variable gespeichert ist
-        - Nucleo Board sendet immer 1500 Zeichen (maximaler Text) (Rest ist aufgefüllt)
-        - Aktueller Text wird in json "currentText" gespeichert und neben "Current Text: " ausgegeben (update on change)
+- Running Light
+    - All buttons are disabled if no connection is there
+
+
+Kommunikation mit Nucleo Board
 
 - Nucleo Board überprüft, ob PC noch "lebt" (ob Verbindung noch vorhanden ist)
     - Nucleo Board erhält jede X ms "get_display_state". Falls dieses nicht mehr ankommt nach z.B 1s, dann ist die Verbindung weg
