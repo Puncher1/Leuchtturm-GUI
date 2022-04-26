@@ -191,6 +191,29 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
     return label
 
 
+def createImageLabel(path: str, labelSize: Tuple[int, int], imageScale: int = None):
+    """
+    Creates a ``Qt.QLabel`` with ``Qt.QPixmap``
+    
+    :param path: The path of the image.
+    :param labelSize: The size of the label: Tuple[w: int, h: int]
+    :param imageScale: The scale of the image: int
+
+    :return: The label: Qt.QLabel
+    """
+
+    label = QLabel()
+    pixmap = QPixmap(path)
+    if imageScale is not None:
+        pixmap = pixmap.scaledToWidth(imageScale)
+
+    label.setPixmap(pixmap)
+
+    label.setFixedWidth(labelSize[0])
+    label.setFixedHeight(labelSize[1])
+
+    return label
+
 def createPushButton(buttonSize: Tuple[int, int], disabled: bool = False, text: str = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                      textColor: str = None, bold: bool = False, underline: bool = False, italic: bool = False, image: Tuple[str, Tuple[int, int]] = None,
                      toolTip: str = None, func: Callable = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
@@ -433,7 +456,7 @@ def createMessageBox(mainWindow: QMainWindow, boxTitle: str, boxText: str,
 
 
 def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, winFlags: List[Qt.WindowFlags] = None,
-                 layout: Union[QGridLayout, QHBoxLayout, QVBoxLayout] = None):
+                 layout: Union[QGridLayout, QHBoxLayout, QVBoxLayout] = None, isCloseButton: bool = True):
     """
     Creates a ``Qt.QDialog`` with the passed arguments and returns it.
 
@@ -447,6 +470,8 @@ def createDialog(mainWindow: QMainWindow, size: Tuple[int, int], winTitle: str, 
     """
 
     dlg = QDialog(mainWindow, functools.reduce(lambda a, b: a | b, winFlags))
+    if not isCloseButton:
+        dlg.setWindowFlag(Qt.WindowCloseButtonHint, False)
 
     x = size[0]
     y = size[1]

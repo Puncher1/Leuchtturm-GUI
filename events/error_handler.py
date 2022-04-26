@@ -10,10 +10,10 @@ import datetime
 import pytz
 import serial
 
-from PyQt5.Qt import QMessageBox, QMainWindow
+from PyQt5.Qt import *
 from PyQt5.QtWidgets import QApplication
 
-from utils.utils import createMessageBox
+from utils.utils import createMessageBox, createDialog, createLabelText, createGridLayout, createImageLabel
 
 
 class ErrorHandler:
@@ -101,15 +101,27 @@ class ErrorHandler:
     def on_response_error(self, state: bool):
 
         if not state:
-            self.__no_response_msg_box = createMessageBox(
-                self.__main_window,
-                "No Response",
-                "The nucleo-board don't respond while communicating to it."
-                "\nPlease check the data and power connection.",
-                [QMessageBox.Ok],
-                QMessageBox.Critical,
-                return_=True
+            error_label = createLabelText(
+                text="The nucleo-board don't respond while communicating to it."
+                     "\nPlease check the data and power connection.",
+                isWordWrap=True,
             )
+
+            error_img_label = createImageLabel("./utils/images/error_icon.png", (50, 50), 35)
+
+            layout = createGridLayout(
+                (error_img_label, (0, 0)),
+                (error_label, (1, 0)),
+            )
+
+            self.__no_response_msg_box = createDialog(
+                self.__main_window,
+                size=(450, 90),
+                winTitle="No Response",
+                winFlags=[Qt.WindowSystemMenuHint, Qt.WindowTitleHint],
+                layout=layout
+            )
+
             self.__no_response_msg_box.exec()
         else:
             if self.__no_response_msg_box is not None:
