@@ -19,7 +19,7 @@ from utils.threads import Thread
 
 _STD_BAUDRATE = 115200
 _STD_PORT = "COM6"
-_STD_TIMEOUT = 1     # seconds
+_STD_TIMEOUT = 0.5     # seconds
 
 
 class _Comms:
@@ -28,23 +28,24 @@ class _Comms:
         self.__ser = _Serial(baudrate, port, timeout)
 
     def get_board_state_ser(self):
-        result = self.__ser.serialWrite("get_board_state\n", 1500)
+        result = self.__ser.serialWrite("get_board_state\n")
         return result
 
     def get_display_state_ser(self):
-        result = self.__ser.serialWrite("get_display_state\n", 1500)
+        result = self.__ser.serialWrite("get_display_state\n")
         return result
 
     def get_text_ser(self):
-        result = self.__ser.serialWrite("get_text\n", 1500)
+        result = self.__ser.serialWrite("get_text\n")
         return result
 
     def exec_task_ser(self, task: str, text: Optional[str]):
         if task in ["display_on\n", "display_off\n"]:
-            feedback = self.__ser.serialWrite(task, 1500)
+            feedback = self.__ser.serialWrite(task)
 
         elif task == "update_text\n" and text is not None:
-            feedback = self.__ser.serialWrite("update_text\n", 1500)
+            feedback = self.__ser.serialWrite("update_text\n")
+            feedback = self.__ser.serialWrite(text)
 
         else:
             raise ValueError(f"'{task}' is not a valid task")
@@ -80,16 +81,19 @@ class Tasks:
             raise Exception("Loop was not called in thread.")
 
         wait_pv = 0
-        wait_cyc = 100
+        wait_cyc = 10
+
         while True:
             if not self.running:
                 break
 
             if self.__board_state_timeout:
-                self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
-                self.__main_window.displayBtn_ONOFF.setText("...")
+                start_timeout = time.perf_counter()
+
                 self.__main_window.displayBtn_ONOFF.setDisabled(True)
                 self.__main_window.displayBtn_UpdateText.setDisabled(True)
+                self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
+                self.__main_window.displayBtn_ONOFF.setText("...")
                 self.__main_window.currentText_ScrollLabel.setText("Loading...")
 
                 print("board timeout")
@@ -105,12 +109,15 @@ class Tasks:
                     pass
                 else:
                     self.__board_state_timeout = False
+                end_timeout = time.perf_counter()
+                print(f"time timeout: {end_timeout-start_timeout}")
 
                 continue
             else:
                 if self.__close_no_response_error:
                     progress_callback.emit(self.__close_no_response_error)
                     self.__close_no_response_error = False
+                    wait_pv = 10
 
 
             self.__task_done = False
@@ -122,11 +129,15 @@ class Tasks:
                     break
 
                 # get actual state
+                start_state = time.perf_counter()
                 try:
                     state = self.__comms.get_display_state_ser()
                     state = state.decode()
 
-                except serial.SerialTimeoutException:
+
+                except (serial.SerialException, serial.SerialTimeoutException):
+                    end_state = time.perf_counter()
+                    print(f"time state: {end_state-start_state}")
                     print("display_error")
                     self.__board_state_timeout = True
                     continue
@@ -182,15 +193,11 @@ class Tasks:
                 break
 
             if self.__task is not None:
-                start = time.perf_counter()
-
                 feedback = self.__comms.exec_task_ser(self.__task, self.__text)
                 self.__feedback = feedback
                 self.__task_done = True
                 self.__task = None
-                wait_pv = 100           # to immediately update ONOFF button
-
-                end = time.perf_counter()
+                wait_pv = 10           # to immediately update ONOFF button
 
             time.sleep(0.01)
 
@@ -231,12 +238,12 @@ class _Serial:
         self.ser.timeout = self.timeout
         self.ser.write_timeout = self.timeout
 
-    def serialWrite(self, string: str, size: int = None):
+    def serialWrite(self, string: str):
+
         try:
-            start_open = time.perf_counter()
             self.ser.open()
-            end_open = time.perf_counter()
-        except serial.SerialException as e:
+        except Exception as e:
+            print(f"ERROR OPENING: {e}")
             self.ser.close()
 
             if "PermissionError" in e.args[0]:
@@ -257,11 +264,10 @@ class _Serial:
                 self.ser.close()
                 raise serial.SerialException(f"Write operation failed!")
 
-            feedback = self.ser.read(size)
-            feedback = feedback.split(b"\0")[0]
+            feedback = self.ser.read(1500)
+            feedback = feedback.split(b"\0")[0].strip()
 
             print(f"{encodedString=}, {feedback=}")
-
 
             if feedback is None or feedback == b"":
                 self.ser.close()
@@ -272,16 +278,13 @@ class _Serial:
             return feedback
 
     def serialRead(self, size: int = 1):
-        if self.port not in self._serial_ports():
-            raise serial.SerialException(f"Make sure this COM Port exists.")
-
         try:
             self.ser.open()
         except serial.SerialException as e:
             self.ser.close()
 
             if "PermissionError" in e.args[0]:
-                raise serial.SerialException(f"{e}. Make sure this COM Port isn't already in use.")
+                raise serial.SerialException(f"{e}. Make sure this COM Port exists and isn't already in use.")
 
             else:
                 raise serial.SerialException(e)
