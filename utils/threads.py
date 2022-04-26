@@ -39,26 +39,22 @@ class Thread(QRunnable):
         self.kwargs = kwargs
         self.signals = ThreadSignals()
 
-        self.kwargs['progress_callback'] = self.signals.progress
-
+        self.kwargs["progress_callback"] = self.signals.progress
+        self.kwargs["error_callback"] = self.signals.error
 
     @pyqtSlot()
     def run(self):
         """
         Initialise the runner function with passed args, kwargs.
         """
+        print("run fn")
+        self.fn(*self.args, **self.kwargs)
 
-        try:
-            print("run fn")
-            self.fn(*self.args, **self.kwargs)
-        except:
-            print("except signal")
-
-            error = sys.exc_info()[1]
-            etype = type(error)
-            etrace = error.__traceback__
-            try:
-                self.signals.error.emit(etype, error, etrace)
-            except RuntimeError:
-                pass
+            # exc_error = sys.exc_info()[1]
+            # exc_type = type(exc_error)
+            # exc_tb = exc_error.__traceback__
+            #
+            # traceback.print_exc()
+            #
+            # self.signals.error.emit(exc_type, exc_error, exc_tb)
 

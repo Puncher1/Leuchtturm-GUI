@@ -41,12 +41,13 @@ class ErrorHandler:
         tz_dt = utc_dt + datetime.timedelta(hours=utc_offsetHours)
         return tz_dt
 
+
     def on_error(self, exc_type, exc_error, exc_tb):
         """
         Global error handler which executes a ``Qt.QMessageBox`` with the traceback.
         By clicking the 'Ok' button or closing the traceback window will exit the program.
         """
-
+        print("on_error")
         lines = traceback.format_exception(exc_type, exc_error, exc_tb)
         full_traceback_text = ''.join(lines)
 

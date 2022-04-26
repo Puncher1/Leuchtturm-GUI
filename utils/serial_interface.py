@@ -43,9 +43,12 @@ class _Comms:
         if task in ["display_on\n", "display_off\n"]:
             feedback = self.__ser.serialWrite(task)
 
-        elif task == "update_text\n" and text is not None:
-            feedback = self.__ser.serialWrite("update_text\n")
-            feedback = self.__ser.serialWrite(text)
+        elif task == "update_text\n":
+            if text is not None:
+                feedback = self.__ser.serialWrite("update_text\n")
+                feedback = self.__ser.serialWrite(f"{text}\n")
+            else:
+                raise ValueError(f"text not provided")
 
         else:
             raise ValueError(f"'{task}' is not a valid task")
@@ -71,7 +74,7 @@ class Tasks:
 
         self.running = True
 
-    def loop(self, progress_callback):
+    def loop(self, progress_callback, error_callback):
         caller_stack = inspect.stack()
         caller_class = caller_stack[1][0].f_locals["self"].__class__.__name__
         caller_method = caller_stack[1][0].f_code.co_name
@@ -117,10 +120,9 @@ class Tasks:
                 if self.__close_no_response_error:
                     progress_callback.emit(self.__close_no_response_error)
                     self.__close_no_response_error = False
-                    wait_pv = 10
+                    wait_pv = 10        # to immediately update GUI
 
 
-            self.__task_done = False
             if wait_pv >= wait_cyc:
                 print("sec loop")
                 wait_pv = 0
@@ -197,7 +199,7 @@ class Tasks:
                 self.__feedback = feedback
                 self.__task_done = True
                 self.__task = None
-                wait_pv = 10           # to immediately update ONOFF button
+                wait_pv = 10           # to immediately update GUI
 
             time.sleep(0.01)
 
@@ -208,6 +210,7 @@ class Tasks:
         while not self.__task_done:
             pass
 
+        self.__task_done = False
         return self.__feedback
 
     def set_display_state(self, state: str):
@@ -221,7 +224,7 @@ class Tasks:
         return feedback
 
     def set_text(self, text: str):
-        feedback = self.__set_task("update_text\n", text)
+        feedback = self.__set_task("update_text\n")
         return feedback
 
 

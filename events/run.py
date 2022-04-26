@@ -53,7 +53,7 @@ class RunEvents:
 
             updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 
-            feedback = self.mainWindow.tasks.set_text(selectedText, len(selectedText.encode()))
+            feedback = self.mainWindow.tasks.set_text(selectedText)
 
             with open(Path.json_States, "r") as fdata:
                 data = json.load(fdata)
