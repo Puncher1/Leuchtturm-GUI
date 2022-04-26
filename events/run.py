@@ -15,25 +15,20 @@ class RunEvents:
 
 
     def on_btnDisplayONOFF_pressed(self):
+        print("task sent")
+
         with open(Path.json_States, "r") as fdata:
             data = json.load(fdata)
 
         displayBtn_ONOFF_text = self.mainWindow.displayBtn_ONOFF.text()
 
-        if displayBtn_ONOFF_text == "ON":
-            displayBtn_ONOFF_task = "OFF"
-        elif displayBtn_ONOFF_text == "OFF":
-            displayBtn_ONOFF_task = "ON"
-        else:
-            raise ValueError("'displayBtn_ONOFF_text' is neither 'ON' nor 'OFF'.")
-
-        feedback = self.mainWindow.tasks.set_display_state(displayBtn_ONOFF_task)
+        feedback = self.mainWindow.tasks.set_display_state(displayBtn_ONOFF_text)
         print(feedback)
 
         createMessageBox(
             self.mainWindow,
             "Display ON/OFF",
-            f"Successfully turned {displayBtn_ONOFF_task.lower()} display!",
+            f"Successfully turned {displayBtn_ONOFF_text.lower()} display!",
             [QMessageBox.Ok],
             QMessageBox.Information
         )

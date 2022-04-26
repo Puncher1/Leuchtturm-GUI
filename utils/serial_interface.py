@@ -43,7 +43,7 @@ class _Comms:
         if task in ["display_on\n", "display_off\n"]:
             feedback = self.__ser.serialWrite(task, 1500)
 
-        if task == "update_text\n" and text is not None:
+        elif task == "update_text\n" and text is not None:
             feedback = self.__ser.serialWrite("update_text\n", 1500)
 
         else:
@@ -86,7 +86,14 @@ class Tasks:
                 break
 
             if self.__board_state_timeout:
+                self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
+                self.__main_window.displayBtn_ONOFF.setText("...")
+                self.__main_window.displayBtn_ONOFF.setDisabled(True)
+                self.__main_window.displayBtn_UpdateText.setDisabled(True)
+                self.__main_window.currentText_ScrollLabel.setText("Loading...")
+
                 print("board timeout")
+
                 if not self.__close_no_response_error:
                     progress_callback.emit(self.__close_no_response_error)
 
@@ -114,35 +121,29 @@ class Tasks:
                 if not self.running:
                     break
 
-                # get board state
-                try:
-                    board_state = self.__comms.get_board_state_ser()
-                    print("board_state")
-                except serial.SerialTimeoutException:
-                    print("board_error")
-                    self.__board_state_timeout = True
-                    continue
-
-                if not self.running:
-                    break
-
                 # get actual state
                 try:
                     state = self.__comms.get_display_state_ser()
                     state = state.decode()
 
                 except serial.SerialTimeoutException:
-                    raise serial.SerialTimeoutException("unexpected timeout")
+                    print("display_error")
+                    self.__board_state_timeout = True
+                    continue
+
                 else:
                     if state == "ON":
-                        color = Color.green
-                    elif state == "OFF":
+                        state = "OFF"
                         color = Color.red
+                    elif state == "OFF":
+                        state = "ON"
+                        color = Color.green
                     else:
                         raise ValueError("'state' is neither 'ON' nor 'OFF'.")
 
                     self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #{}".format(color))
-                    self.__main_window.displayBtn_ONOFF.setText(state.strip())
+                    self.__main_window.displayBtn_ONOFF.setText(state)
+                    self.__main_window.displayBtn_ONOFF.setEnabled(True)
 
                 if not self.running:
                     break
@@ -153,9 +154,26 @@ class Tasks:
                     text = text.decode()
 
                 except serial.SerialTimeoutException:
-                    raise serial.SerialTimeoutException("unexpected timeout")
+                    print("text_error")
+                    self.__board_state_timeout = True
+                    continue
+
                 else:
-                    self.__main_window.currentText_ScrollLabel.setText(text.strip())
+                    self.__main_window.currentText_ScrollLabel.setText(text)
+
+                # get board state
+                try:
+                    board_state = self.__comms.get_board_state_ser()
+                except serial.SerialTimeoutException:
+                    print("board_error")
+                    self.__board_state_timeout = True
+                    continue
+
+                else:
+                    self.__main_window.displayBtn_UpdateText.setEnabled(True)
+
+                if not self.running:
+                    break
 
             else:
                 wait_pv += 1
@@ -164,10 +182,15 @@ class Tasks:
                 break
 
             if self.__task is not None:
+                start = time.perf_counter()
+
                 feedback = self.__comms.exec_task_ser(self.__task, self.__text)
                 self.__feedback = feedback
                 self.__task_done = True
                 self.__task = None
+                wait_pv = 100           # to immediately update ONOFF button
+
+                end = time.perf_counter()
 
             time.sleep(0.01)
 
@@ -208,37 +231,16 @@ class _Serial:
         self.ser.timeout = self.timeout
         self.ser.write_timeout = self.timeout
 
-    def _serial_ports(self):
-        """
-        Lists every COM port available on the system.
-
-        :return: List of strings
-        """
-
-        ports = ['COM%s' % (i + 1) for i in range(256)]
-
-        result = []
-        for port in ports:
-            try:
-                s = serial.Serial(port)
-                s.close()
-                result.append(port)
-            except (OSError, serial.SerialException) as e:
-                pass
-
-        return result
-
     def serialWrite(self, string: str, size: int = None):
-        if self.port not in self._serial_ports():
-            raise serial.SerialException(f"Make sure this COM Port exists.")
-
         try:
+            start_open = time.perf_counter()
             self.ser.open()
+            end_open = time.perf_counter()
         except serial.SerialException as e:
             self.ser.close()
 
             if "PermissionError" in e.args[0]:
-                raise serial.SerialException(f"{e}. Make sure this COM Port isn't already in use.")
+                raise serial.SerialException(f"{e}. Make sure this COM Port exists and isn't already in use.")
 
             else:
                 raise serial.SerialException(e)
@@ -255,21 +257,18 @@ class _Serial:
                 self.ser.close()
                 raise serial.SerialException(f"Write operation failed!")
 
-            if size:
-                feedback = self.ser.read(size)
-            else:
-                feedback = self.ser.read(len(encodedString))
-
+            feedback = self.ser.read(size)
             feedback = feedback.split(b"\0")[0]
 
-            print(f"{self.ser.baudrate=}, {self.ser.port=}")
-            print(f"{feedback=}, {encodedString=}")
+            print(f"{encodedString=}, {feedback=}")
+
+
             if feedback is None or feedback == b"":
                 self.ser.close()
                 raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback. "
                                                     f"Please check the data and power connection.")
-
             self.ser.close()
+
             return feedback
 
     def serialRead(self, size: int = 1):
