@@ -19,8 +19,9 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
 """
 TODO:
-- THREAD ERROR HANDLING DOESN'T WORK!! -> stackoverflow
-    - testen anstelle von progress error an gleicher Stelle aufrufen
+
+- add note: Zuerst Display ausschalten, danach Stromkabel am Leuchtturm ziehen
+- Text Dropdown: Selected entfernen
 
 Run Tab
         
@@ -253,7 +254,6 @@ class MainWindow(QMainWindow):
         )
         self.setCentralWidget(self.tabs)
 
-
     def on_tab_changed(self):
         tabName = self.tabs.tabText(self.tabs.currentIndex())
 
@@ -276,6 +276,16 @@ window.show()
 error_handler = ErrorHandler(window)
 sys.excepthook = error_handler.on_error
 
+
+createMessageBox(
+    window,
+    "Important Information",
+    "Please turn off the display before unplug the power cable from the device."
+    "\n\n**Unplug the cable while the display is on may damage the device!**",
+    [QMessageBox.Ok],
+    QMessageBox.Warning,
+    textFormat=Qt.TextFormat.MarkdownText,
+)
 
 threadpool = QThreadPool()
 thread_task = Thread(window.tasks.loop, window)

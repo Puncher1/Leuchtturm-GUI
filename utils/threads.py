@@ -64,4 +64,10 @@ class Thread(QRunnable):
             exc_type = type(exc_error)
             exc_tb = exc_error.__traceback__
 
-            self.signals.error.emit(exc_type, exc_error, exc_tb)
+            try:
+                self.signals.error.emit(exc_type, exc_error, exc_tb)
+            except Exception as e:
+                if isinstance(e, RuntimeError):
+                    pass
+                else:
+                    traceback.print_exc()
