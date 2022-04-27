@@ -91,8 +91,6 @@ class Tasks:
                 break
 
             if self.__board_state_timeout:
-                start_timeout = time.perf_counter()
-
                 self.__main_window.displayBtn_ONOFF.setDisabled(True)
                 self.__main_window.displayBtn_UpdateText.setDisabled(True)
                 self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
@@ -129,7 +127,6 @@ class Tasks:
                     break
 
                 # get actual state
-                start_state = time.perf_counter()
                 try:
                     state = self.__comms.get_display_state_ser()
                     state = state.decode()
