@@ -222,11 +222,9 @@ class MainWindow(QMainWindow):
         if len(list(dataTexts.keys())) == 0:
             placeholder = "No texts available"
 
-        elif "currentTextLabel" not in dataStates.keys():
+        else:
             placeholder = "Select text"
 
-        else:
-            placeholder = f"Selected: {dataStates['currentTextLabel']}"
 
         self.precreatedTexts_Dropdown = createComboBox(
             items=list(dataTexts.keys()),

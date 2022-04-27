@@ -785,11 +785,8 @@ def updateRunDropdown(comboBox: QComboBox):
     if len(list(dataTexts.keys())) == 0:
         placeholder = "No texts available"
 
-    elif "currentTextLabel" not in dataStates.keys():
-        placeholder = "Select text"
-
     else:
-        placeholder = f"Selected: {dataStates['currentTextLabel']}"
+        placeholder = "Select text"
 
     comboBox.setPlaceholderText(placeholder)
     comboBox.setCurrentIndex(-1)
