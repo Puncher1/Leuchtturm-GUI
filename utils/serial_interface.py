@@ -76,12 +76,26 @@ class Tasks:
 
     def loop(self, progress_callback):
         caller_stack = inspect.stack()
-        caller_class = caller_stack[1][0].f_locals["self"].__class__.__name__
-        caller_method = caller_stack[1][0].f_code.co_name
-        caller = f"{caller_class}.{caller_method}"
+        caller_func = caller_stack[1][3]
 
-        if not caller == "Thread.run":
+        raise_error = False
+        if not caller_func == "<module>":
+            if "self" in list(caller_stack[1][0].f_locals):
+                caller_class = caller_stack[1][0].f_locals["self"].__class__.__name__
+                caller_method = caller_stack[1][0].f_code.co_name
+                caller = f"{caller_class}.{caller_method}"
+
+                if not caller == "Thread.run":
+                    raise_error = True
+            else:
+                raise_error = True
+
+        else:
+            raise_error = True
+
+        if raise_error:
             raise Exception("Loop was not called in thread.")
+
 
         wait_pv = 0
         wait_cyc = 10
