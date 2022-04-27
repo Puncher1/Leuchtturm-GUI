@@ -19,9 +19,6 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
 """
 TODO:
-
-- Text Dropdown: Selected entfernen
-
 Run Tab
         
 - apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
@@ -235,7 +232,7 @@ class MainWindow(QMainWindow):
         )
 
         self.warningLabel = createLabelText(
-            "Don't unplug the cable from the device while the display is on!",
+            "Don't unplug the power cable from the device while the display is on!",
             fontSize=10,
             textColor="red",
             rect=(10, 450, 350, 20),

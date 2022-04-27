@@ -51,28 +51,31 @@ class RunEvents:
                 data = json.load(fdata)
                 selectedText = data[selectedTextLabel]
 
-            updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
+            currentText = self.mainWindow.currentText_ScrollLabel.label.text()
+            if selectedText == currentText:
+                createMessageBox(
+                    self.mainWindow,
+                    "Update Text",
+                    "Text already on display, please choose another.",
+                    [QMessageBox.Ok],
+                    QMessageBox.Critical
+                )
+            else:
+                updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 
-            feedback, global_error = self.mainWindow.tasks.set_text(selectedText)
+                feedback, global_error = self.mainWindow.tasks.set_text(selectedText)
 
-            if global_error:
-                return
+                if global_error:
+                    return
 
-            with open(Path.json_States, "r") as fdata:
-                data = json.load(fdata)
-                data["currentTextLabel"] = selectedTextLabel
+                updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 
-                with open(Path.json_States, "w+") as fdata:
-                    json.dump(data, fdata, sort_keys=True, indent=4)
-
-            updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
-
-            createMessageBox(
-                self.mainWindow,
-                "Update Text",
-                f'Successfully updated the current text with the label "{selectedTextLabel}".',
-                [QMessageBox.Ok],
-                QMessageBox.Information
-            )
+                createMessageBox(
+                    self.mainWindow,
+                    "Update Text",
+                    f'Successfully updated the current text with the label "{selectedTextLabel}".',
+                    [QMessageBox.Ok],
+                    QMessageBox.Information
+                )
 
 

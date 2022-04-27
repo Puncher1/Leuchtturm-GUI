@@ -230,7 +230,7 @@ class Tasks:
         return feedback
 
     def set_text(self, text: str):
-        feedback = self.__set_task("update_text\n")
+        feedback = self.__set_task("update_text\n", text)
         return feedback
 
 
@@ -274,7 +274,7 @@ class _Serial:
                 raise serial.SerialException(f"Write operation failed!")
 
             feedback = self.ser.read(1500)
-            feedback = feedback.split(b"\0")[0].strip()
+            feedback = feedback.split(b"\0")[0]
 
             print(f"{encodedString=}, {feedback=}")
 
