@@ -20,7 +20,6 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 
-- add note: Zuerst Display ausschalten, danach Stromkabel am Leuchtturm ziehen
 - Text Dropdown: Selected entfernen
 
 Run Tab
@@ -132,10 +131,10 @@ class MainWindow(QMainWindow):
         )
 
         self.runDescription = createLabelText(
-            "Here, you can change the dot-matrix display."
-            "<br>Select a text at <i><b>Pre-created Texts</b></i> and press <b><i>Update text</i></b> to display a text.",
-            isMarkdown=True,
-            rect=(10, 50, 500, 50),
+            "Here, you can change the dot-matrix display. Select a text at <i><b>Pre-created Texts</b></i> and "
+            "press <b><i>Update text</i></b> to display the text. ",
+            isWordWrap=True,
+            rect=(10, 50, 500, 100),
             parent=self.runWidget
         )
 
@@ -146,7 +145,6 @@ class MainWindow(QMainWindow):
             rect=(42, 140, 145, 30),
             parent=self.runWidget
         )
-
 
         self.displayBtn_ONOFF = createPushButton(
             (60, 30),
@@ -165,13 +163,6 @@ class MainWindow(QMainWindow):
             parent=self.runWidget,
             func=self.run.on_btnUpdateText_pressed
         )
-
-        # self.currentText_Label = createLabelText(
-        #     "Current Text:",
-        #     bold=True,
-        #     rect=(42, 265, 100, 20),
-        #     parent=self.runWidget
-        # )
 
         self.currentText_ScrollLabel = createLabelText(
             text="Loading...",     # json: "currentText"
@@ -242,6 +233,15 @@ class MainWindow(QMainWindow):
             placeholder=placeholder,
             isPlaceholderBold=True,
             rect=(40, 365, 170, 23),
+            parent=self.runWidget
+        )
+
+        self.warningLabel = createLabelText(
+            "Don't unplug the cable from the device while the display is on!",
+            fontSize=10,
+            textColor="red",
+            rect=(10, 450, 350, 20),
+            bold=True,
             parent=self.runWidget
         )
 

@@ -122,8 +122,10 @@ class ScrollLabel(QScrollArea):
 
 def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FONT, fontSize: int = STD_FONTSIZE,
                     bold: bool = False, underline: bool = False, italic: bool = False, border_px: int = None,
-                    isMarkdown: bool = False, isAutoResize: bool = False, isWordWrap: bool = False, isScrollable: bool = False,
-                    textAlignment: Union[Qt.Alignment, Qt.AlignmentFlag] = None, rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
+                    textColor: str = None, isMarkdown: bool = False, isAutoResize: bool = False,
+                    isWordWrap: bool = False, isScrollable: bool = False,
+                    textAlignment: Union[Qt.Alignment, Qt.AlignmentFlag] = None, rect: Tuple[int, int, int, int] = None,
+                    parent: QWidget = None):
     """
     Creates a ``Qt.QLabel`` with the passed arguments and returns it.
 
@@ -163,6 +165,9 @@ def createLabelText(text: str, size: Tuple[int, int] = None, font: str = STD_FON
 
     if isMarkdown:
         label.setTextFormat(Qt.TextFormat.MarkdownText)
+
+    if textColor is not None:
+        label.setStyleSheet(f"color: {textColor}")
 
     if parent is not None:
         label.setParent(parent)
