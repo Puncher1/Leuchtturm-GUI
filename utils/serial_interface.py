@@ -67,6 +67,7 @@ class Tasks:
         self.__text = None
         self.__feedback = None
         self.__task_done = False
+        self.global_error = False
 
         self.__board_state_timeout = False
         self.__close_no_response_error = False
@@ -111,8 +112,6 @@ class Tasks:
                     pass
                 else:
                     self.__board_state_timeout = False
-                end_timeout = time.perf_counter()
-                print(f"time timeout: {end_timeout-start_timeout}")
 
                 continue
             else:
@@ -135,10 +134,7 @@ class Tasks:
                     state = self.__comms.get_display_state_ser()
                     state = state.decode()
 
-
                 except (serial.SerialException, serial.SerialTimeoutException):
-                    end_state = time.perf_counter()
-                    print(f"time state: {end_state-start_state}")
                     print("display_error")
                     self.__board_state_timeout = True
                     continue
@@ -206,11 +202,11 @@ class Tasks:
         self.__task = cmd
         self.__text = text
 
-        while not self.__task_done:
+        while not self.__task_done and not self.global_error:
             pass
 
         self.__task_done = False
-        return self.__feedback
+        return self.__feedback, self.global_error
 
     def set_display_state(self, state: str):
         if state == "ON":
