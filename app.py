@@ -274,16 +274,14 @@ window = MainWindow()
 window.show()
 
 error_handler = ErrorHandler(window)
-# sys.excepthook = error_handler.on_error
+sys.excepthook = error_handler.on_error
 
 threadpool = QThreadPool()
 thread_task = Thread(window.tasks.loop)
 thread_task.signals.progress.connect(error_handler.on_response_error)
 thread_task.signals.error.connect(error_handler.on_error)
-try:
-    threadpool.start(thread_task)
-except:
-    print("THREADPOOL ERROR")
+threadpool.start(thread_task)
+
 
 app.exec_()
 window.tasks.running = False

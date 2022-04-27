@@ -11,7 +11,6 @@ from typing import Optional
 import serial
 from PyQt5.Qt import *
 
-from events.error_handler import ErrorHandler
 from utils.common import Color
 from utils.utils import createMessageBox
 from utils.threads import Thread
@@ -74,7 +73,7 @@ class Tasks:
 
         self.running = True
 
-    def loop(self, progress_callback, error_callback):
+    def loop(self, progress_callback):
         caller_stack = inspect.stack()
         caller_class = caller_stack[1][0].f_locals["self"].__class__.__name__
         caller_method = caller_stack[1][0].f_code.co_name
