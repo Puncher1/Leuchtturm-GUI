@@ -102,7 +102,7 @@ class Tasks:
 
 
         wait_pv = 0
-        wait_cyc = 100
+        wait_cyc = 10
 
         while True:
             if not self.running:
@@ -323,10 +323,6 @@ class _Serial:
             feedback = self.ser.read(500)
             feedback = feedback.split(b"\0")[0]
 
-            start = time.perf_counter()
-            print(f"{encodedString=}, {feedback=}")
-            end = time.perf_counter()
-            print(f"time: {end-start}")
             if feedback is None or feedback == b"":
                 self.ser.close()
                 raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback.")
