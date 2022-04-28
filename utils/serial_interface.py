@@ -321,7 +321,7 @@ class _Serial:
                 raise serial.SerialException(f"Write operation failed!")
 
             feedback = self.ser.read(500)
-            feedback = feedback.split(b"\0")[0]
+            feedback = feedback.split(b"\0")[0].strip()
 
             print(f"{encodedString=}, {feedback=}")
             if feedback is None or feedback == b"":
