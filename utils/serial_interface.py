@@ -323,6 +323,7 @@ class _Serial:
             feedback = self.ser.read(500)
             feedback = feedback.split(b"\0")[0]
 
+            print(f"{encodedString=}, {feedback=}")
             if feedback is None or feedback == b"":
                 self.ser.close()
                 raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback.")
