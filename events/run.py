@@ -56,6 +56,7 @@ class RunEvents:
             else:
                 updateRunDropdown(self.mainWindow.precreatedTexts_Dropdown)
 
+                selectedText += self.mainWindow.TEXT_GAP        # to create a "gap" at the end of string
                 feedback, global_error = self.mainWindow.tasks.set_text(selectedText)
 
                 if global_error:
