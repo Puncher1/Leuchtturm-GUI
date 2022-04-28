@@ -20,26 +20,24 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 """
 TODO:
 Run Tab
-        
-- apply run stuff (display on/off, speed, running light on/off, ...) on uC by writing via UART
-- run stuff (display on/off, speed, running light on/off, ...) check with real state (read from uC)
-- create functions for things
 
-- Running Light
-    - All buttons are disabled if no connection is there
+Running Light:
+- ONOFF check via UART (like at displayONOFF)
+- Speed with confirm/send button + label with current percent + current speed + default speed at uC (e.g. 50%) 
+- All buttons etc. are disabled if no connection is there
+
+
+- create functions for things
 
 
 Kommunikation mit Nucleo Board
 
 - Nucleo Board überprüft, ob PC noch "lebt" (ob Verbindung noch vorhanden ist)
     - Nucleo Board erhält jede X ms "get_display_state". Falls dieses nicht mehr ankommt nach z.B 1s, dann ist die Verbindung weg
-    - Falls Verbindung weg: Standardtext ausgeben
+    - Falls Verbindung weg: Standardtext ausgeben + Standardgeschwindigkeit
     
 - Nucleo Board wird neugestartet (z.B. Strom raus und wieder rein)
-    - Standardtext ausgeben
-
-Editor Tab
-- edit button to change context of texts
+    - Standardtext ausgeben + Standardgeschwindigkeit ausgeben
 
 Others
 - docstrings on_... functions
@@ -178,10 +176,11 @@ class MainWindow(QMainWindow):
 
         self.runningLightBtn_ONOFF = createPushButton(
             (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
-            text="ON/OFF",
+            text="...",
+            disabled=True,
             rect=(540, 180, 71, 31),
             parent=self.runWidget,
-            func=None       # TODO
+            func=self.run.on_btnRunninglightONOFF_pressed
         )
 
         self.runningLightSpeed_Slider = createSlider(
@@ -271,14 +270,13 @@ window.show()
 error_handler = ErrorHandler(window)
 sys.excepthook = error_handler.on_error
 
-
 createMessageBox(
     window,
     "Important Information",
     "Please turn off the display before unplug the power cable from the device."
     "\n\n**Unplug the cable while the display is on may damage the device!**",
     [QMessageBox.Ok],
-    QMessageBox.Warning,
+    QMessageBox.Information,
     textFormat=Qt.TextFormat.MarkdownText,
 )
 
