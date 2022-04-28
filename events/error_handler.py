@@ -71,12 +71,18 @@ class ErrorHandler:
             else:
                 createMessageBox(
                     self.__main_window,
-                    "Timeout",
-                    "The operation is canceled due of a timeout while reading/writing from/to nucleo-board."
-                    "\nPlease check the data and power connection.",
+                    "An unexpected error has occurred!",
+                    f"{full_traceback_text}"
+                    f"\n\nPlease contact SCA (Tel. 267) if this error remain.",
                     [QMessageBox.Ok],
                     QMessageBox.Critical
                 )
+
+                cet_dt = self.__getLocalDatetime("CET")
+                cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
+
+                errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
+                errorFile.write(full_traceback_text)
 
         else:
             createMessageBox(
@@ -93,9 +99,6 @@ class ErrorHandler:
 
             errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
             errorFile.write(full_traceback_text)
-
-        if exc_type == serial.serialutil.SerialTimeoutException:
-            return
 
         QApplication.quit()
 
