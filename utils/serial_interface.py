@@ -26,10 +26,6 @@ class _Comms:
     def __init__(self, baudrate: int = _STD_BAUDRATE, port: str = _STD_PORT, timeout: int = _STD_TIMEOUT):
         self.__ser = _Serial(baudrate, port, timeout)
 
-    def get_board_state_ser(self):
-        result = self.__ser.serialWrite("get_board_state\n")
-        return result
-
     def get_display_state_ser(self):
         result = self.__ser.serialWrite("get_display_state\n")
         return result
@@ -38,8 +34,16 @@ class _Comms:
         result = self.__ser.serialWrite("get_text\n")
         return result
 
+    def get_runninglight_state(self):
+        result = self.__ser.serialWrite("get_runninglight_state\n")
+        return result
+
+    def get_board_state_ser(self):
+        result = self.__ser.serialWrite("get_board_state\n")
+        return result
+
     def exec_task_ser(self, task: str, text: Optional[str]):
-        if task in ["display_on\n", "display_off\n"]:
+        if task in ["display_on\n", "display_off\n", "runninglight_on\n", "runninglight_off\n"]:
             feedback = self.__ser.serialWrite(task)
 
         elif task == "update_text\n":
@@ -98,7 +102,7 @@ class Tasks:
 
 
         wait_pv = 0
-        wait_cyc = 10
+        wait_cyc = 100
 
         while True:
             if not self.running:
@@ -106,10 +110,13 @@ class Tasks:
 
             if self.__board_state_timeout:
                 self.__main_window.displayBtn_ONOFF.setDisabled(True)
-                self.__main_window.displayBtn_UpdateText.setDisabled(True)
                 self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #000000")
                 self.__main_window.displayBtn_ONOFF.setText("...")
+                self.__main_window.displayBtn_UpdateText.setDisabled(True)
                 self.__main_window.currentText_ScrollLabel.setText("Loading...")
+                self.__main_window.runningLightBtn_ONOFF.setDisabled(True)
+                self.__main_window.runningLightBtn_ONOFF.setStyleSheet("color: #000000")
+                self.__main_window.runningLightBtn_ONOFF.setText("...")
 
                 print("board timeout")
 
@@ -126,11 +133,12 @@ class Tasks:
                     self.__board_state_timeout = False
 
                 continue
+
             else:
                 if self.__close_no_response_error:
                     progress_callback.emit(self.__close_no_response_error)
                     self.__close_no_response_error = False
-                    wait_pv = 10        # to immediately update GUI
+                    wait_pv = wait_cyc        # to immediately update GUI
 
 
             if wait_pv >= wait_cyc:
@@ -140,10 +148,10 @@ class Tasks:
                 if not self.running:
                     break
 
-                # get actual state
+                # |-------- get real display state --------|
                 try:
-                    state = self.__comms.get_display_state_ser()
-                    state = state.decode()
+                    button_state = self.__comms.get_display_state_ser()
+                    button_state = button_state.decode()
 
                 except (serial.SerialException, serial.SerialTimeoutException):
                     print("display_error")
@@ -151,23 +159,24 @@ class Tasks:
                     continue
 
                 else:
-                    if state == "ON":
-                        state = "OFF"
+                    if button_state == "ON":
+                        button_state = "OFF"
                         color = Color.red
-                    elif state == "OFF":
-                        state = "ON"
+                    elif button_state == "OFF":
+                        button_state = "ON"
                         color = Color.green
                     else:
-                        raise ValueError("'state' is neither 'ON' nor 'OFF'.")
+                        raise ValueError("'button_state' is neither 'ON' nor 'OFF'.")
 
                     self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #{}".format(color))
-                    self.__main_window.displayBtn_ONOFF.setText(state)
+                    self.__main_window.displayBtn_ONOFF.setText(button_state)
                     self.__main_window.displayBtn_ONOFF.setEnabled(True)
 
                 if not self.running:
                     break
 
-                # get actual text
+
+                # |-------- get real text --------|
                 try:
                     text = self.__comms.get_text_ser()
                     text = text.decode()
@@ -180,7 +189,33 @@ class Tasks:
                 else:
                     self.__main_window.currentText_ScrollLabel.setText(text)
 
-                # get board state
+
+                # |-------- get real running light state --------|
+                try:
+                    runninglight_state = self.__comms.get_runninglight_state()
+                    runninglight_state = runninglight_state.decode()
+
+                except (serial.SerialException, serial.SerialTimeoutException):
+                    print("runninglight_error")
+                    self.__board_state_timeout = True
+                    continue
+
+                else:
+                    if runninglight_state == "ON":
+                        runninglight_state = "OFF"
+                        color = Color.red
+                    elif runninglight_state == "OFF":
+                        runninglight_state = "ON"
+                        color = Color.green
+                    else:
+                        raise ValueError("'runninglight_state' is neither 'ON' nor 'OFF'.")
+
+                    self.__main_window.runningLightBtn_ONOFF.setStyleSheet("color: #{}".format(color))
+                    self.__main_window.runningLightBtn_ONOFF.setText(runninglight_state)
+                    self.__main_window.runningLightBtn_ONOFF.setEnabled(True)
+
+
+                # |-------- get board state --------|
                 try:
                     board_state = self.__comms.get_board_state_ser()
                 except serial.SerialTimeoutException:
@@ -205,7 +240,7 @@ class Tasks:
                 self.__feedback = feedback
                 self.__task_done = True
                 self.__task = None
-                wait_pv = 10           # to immediately update GUI
+                wait_pv = wait_cyc           # to immediately update GUI
 
             time.sleep(0.01)
 
@@ -231,6 +266,18 @@ class Tasks:
 
     def set_text(self, text: str):
         feedback = self.__set_task("update_text\n", text)
+        return feedback
+
+    def set_runninglight_state(self, state: str):
+        if state == "ON":
+            feedback = self.__set_task("runninglight_on\n")
+
+        elif state == "OFF":
+            feedback = self.__set_task("runninglight_off\n")
+
+        else:
+            raise ValueError("'state' is neither 'ON' nor 'OFF'")
+
         return feedback
 
 
@@ -273,15 +320,16 @@ class _Serial:
                 self.ser.close()
                 raise serial.SerialException(f"Write operation failed!")
 
-            feedback = self.ser.read(1500)
+            feedback = self.ser.read(500)
             feedback = feedback.split(b"\0")[0]
 
+            start = time.perf_counter()
             print(f"{encodedString=}, {feedback=}")
-
+            end = time.perf_counter()
+            print(f"time: {end-start}")
             if feedback is None or feedback == b"":
                 self.ser.close()
-                raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback. "
-                                                    f"Please check the data and power connection.")
+                raise serial.SerialTimeoutException(f"Read operation timed out and didn't receive any feedback.")
             self.ser.close()
 
             return feedback

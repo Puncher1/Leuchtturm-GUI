@@ -15,15 +15,8 @@ class RunEvents:
 
 
     def on_btnDisplayONOFF_pressed(self):
-        print("task sent")
-
-        with open(Path.json_States, "r") as fdata:
-            data = json.load(fdata)
-
         displayBtn_ONOFF_text = self.mainWindow.displayBtn_ONOFF.text()
-
         feedback = self.mainWindow.tasks.set_display_state(displayBtn_ONOFF_text)
-        print(feedback)
 
         createMessageBox(
             self.mainWindow,
@@ -79,3 +72,14 @@ class RunEvents:
                 )
 
 
+    def on_btnRunninglightONOFF_pressed(self):
+        runninglightBtn_ONOFF_text = self.mainWindow.runningLightBtn_ONOFF.text()
+        feedback = self.mainWindow.tasks.set_runninglight_state(runninglightBtn_ONOFF_text)
+
+        createMessageBox(
+            self.mainWindow,
+            "Running Light ON/OFF",
+            f"Successfully turned {runninglightBtn_ONOFF_text.lower()} running light!",
+            [QMessageBox.Ok],
+            QMessageBox.Information
+        )
