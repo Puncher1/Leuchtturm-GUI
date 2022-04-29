@@ -118,7 +118,7 @@ class EditorEvents:
             else:
                 createMessageBox(self.mainWindow, "Clear Texts", "Are you sure you want to delete every text?",
                                  [QMessageBox.Yes, QMessageBox.No],
-                                 QMessageBox.Warning, self.on_btnsClearText_pressed)
+                                 QMessageBox.Warning, func=self.on_btnsClearText_pressed)
 
 
     def on_btnsNewText_pressed(self, btn):
@@ -195,7 +195,7 @@ class EditorEvents:
             self.dlgDelText.close()
 
 
-    def on_btnsClearText_pressed(self, btnName):
+    def on_btnsClearText_pressed(self, btnName, msgBox):
         btnName = btnName.strip("&")
 
         if btnName == "Yes":
