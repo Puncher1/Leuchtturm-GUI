@@ -21,7 +21,7 @@ class EditorEvents:
             titleWidget = createLabelText("New Text", fontSize=18, bold=True, underline=True)
             descWidget = createLabelText("Please type your text and a specific label into the text-fields"
                                          "\nbelow."
-                                         "\nNOTE: The maximum length of the text is 500 and the maximum"
+                                         "\nNOTE: The maximum length of the text is 489 and the maximum"
                                          "\nlength of the label is 10 characters.",
                                          )
 
@@ -30,7 +30,7 @@ class EditorEvents:
             )
 
             self.inputText = createLineEdit(
-                500,
+                489,
                 placeholder="Enter your text",
             )
 
