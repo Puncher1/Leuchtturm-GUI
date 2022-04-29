@@ -118,7 +118,7 @@ class Tasks:
 
 
         wait_pv = 0
-        wait_cyc = 10
+        wait_cyc = 0
 
         while True:
             if not self.running:
@@ -133,9 +133,9 @@ class Tasks:
                 self.__main_window.runningLightBtn_ONOFF.setDisabled(True)
                 self.__main_window.runningLightBtn_ONOFF.setStyleSheet("color: #000000")
                 self.__main_window.runningLightBtn_ONOFF.setText("...")
-                self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: ...%")
+                self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: ...")
                 self.__main_window.runningLightSpeed_Slider.setDisabled(True)
-                self.__main_window.currentBrightness_Label.setText(f"Current Brightness: ...%")
+                self.__main_window.currentBrightness_Label.setText(f"Current Brightness: ...")
                 self.__main_window.brightness_Slider.setDisabled(True)
 
                 print("board timeout")
