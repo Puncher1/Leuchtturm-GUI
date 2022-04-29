@@ -17,6 +17,9 @@ from utils.utils import createMessageBox, createDialog, createLabelText, createG
 
 
 class ErrorHandler:
+    """
+    Represents all error-events.
+    """
 
     def __init__(self, main_window: QMainWindow):
         self.__main_window = main_window
@@ -44,9 +47,12 @@ class ErrorHandler:
 
     def on_error(self, exc_type, exc_error, exc_tb):
         """
-        Global error handler which executes a ``Qt.QMessageBox`` with the traceback.
-        By clicking the 'Ok' button or closing the traceback window will exit the program.
+        Global error handler which is called when a traceback is raised.
+
+        Opens a window with the traceback.
+        By clicking the 'Ok' button or closing the traceback window, the program exits.
         """
+
         print("on_error")
         lines = traceback.format_exception(exc_type, exc_error, exc_tb)
         full_traceback_text = ''.join(lines)
@@ -103,6 +109,11 @@ class ErrorHandler:
         QApplication.quit()
 
     def on_response_error(self, state: bool):
+        """
+        Called when the communication fails between the PC and the Nucleo-Board.
+
+        Opens a window saying that there's no response. THIS WINDOW CAN'T GET CLOSED!
+        """
 
         if not state:
             error_label = createLabelText(

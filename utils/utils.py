@@ -645,7 +645,7 @@ def createGridLayout(*items: HINT_gridLayout, margins: Union[Tuple[int, int, int
     Creates a ``Qt.QGridLayout`` with the passed arguments and returns it.
 
     :param margins: KWARG
-    :param args: The target/s which should be placed into the layout: Union[Tuple[QWidget, Tuple[x: int, y: int], Union[alignment: Qt.Alignment, None]], Tuple[QLayout, Tuple[x: int, y: int], Union[alignment: Qt.Alignment, None]]]
+    :param items: The target/s which should be placed into the layout: Union[Tuple[QWidget, Tuple[x: int, y: int], Union[alignment: Qt.Alignment, None]], Tuple[QLayout, Tuple[x: int, y: int], Union[alignment: Qt.Alignment, None]]]
     :return: The grid layout: Qt.QGridLayout
     """
 
@@ -808,7 +808,6 @@ def checkValidStr(string: str):
     Checks if a specific string has invalid chars in it and returns the valid state and a list of all (not duplicated) invalid chars in the specific string.
 
     :param string: The string which should be checked: str
-
     :return: The valid state and a list of all (not duplicated) invalid chars in the specific string: bool, list
     """
 

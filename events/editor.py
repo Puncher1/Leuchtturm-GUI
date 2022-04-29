@@ -4,12 +4,21 @@ from utils.common import Path
 
 
 class EditorEvents:
+    """
+    Represents all events in the editor tab.
+    """
 
     def __init__(self, mainWindow):
         self.mainWindow = mainWindow
 
-
     def on_btnNew_pressed(self):
+        """
+        Called when the new-button is pressed.
+
+        Opens a new window in which the user can enter a label and a text which should be added to the editor table
+        (which are then selectable in the run dropdown).
+        """
+
         with open(Path.json_Texts, "r") as fdata:
             data = json.load(fdata)
 
@@ -71,8 +80,13 @@ class EditorEvents:
                                            layout)
             self.dlgNewText.exec()
 
-
     def on_btnDel_pressed(self):
+        """
+        Called when the del-button is pressed.
+
+        Opens a new window in which the user can select a text which should be deleted from the editor table.
+        """
+
         with open(Path.json_Texts, "r") as fdata:
             data = json.load(fdata)
 
@@ -108,8 +122,13 @@ class EditorEvents:
                                                layout)
                 self.dlgDelText.exec()
 
-
     def on_btnClear_pressed(self):
+        """
+        Called when the clear-button is pressed.
+
+        Opens a confirmation window in which the user has to confirm that he want to delete all textes.
+        """
+
         with open(Path.json_Texts, "r") as fdata:
             data = json.load(fdata)
 
@@ -120,8 +139,13 @@ class EditorEvents:
                                  [QMessageBox.Yes, QMessageBox.No],
                                  QMessageBox.Warning, func=self.on_btnsClearText_pressed)
 
-
     def on_btnsNewText_pressed(self, btn):
+        """
+        Called when the "Create & Save"-button in the "New"-window is pressed.
+
+        Adds a text with its label to the editor table.
+        """
+
         if btn == QDialogButtonBox.Save:
 
             label = self.inputLabel.text()
@@ -175,8 +199,13 @@ class EditorEvents:
         else:
             raise TypeError(f"Unexpected argument '{btn}'.")
 
-
     def on_btnsDelText_pressed(self, btn):
+        """
+        Called when the "Delete & Save"-button in the "Del"-window is pressed.
+
+        Deletes a text with its label from the editor table.
+        """
+
         if btn == QDialogButtonBox.Save:
             selectedLabel = self.delDropdownWidget.currentText()
 
@@ -194,8 +223,13 @@ class EditorEvents:
         elif btn == QDialogButtonBox.Cancel:
             self.dlgDelText.close()
 
-
     def on_btnsClearText_pressed(self, btnName, msgBox):
+        """
+        Called when the "Yes"- or "No"-button in the "Clear"-confirmation-window is pressed.
+
+        Executes or cancels the deletion.
+        """
+
         btnName = btnName.strip("&")
 
         if btnName == "Yes":

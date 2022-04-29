@@ -19,15 +19,6 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
 """
 TODO:
-Run Tab
-
-Running Light:
-- maybe brightness 
-
-Kommunikation mit Nucleo Board
-- Nucleo Board überprüft, ob PC noch "lebt" (ob Verbindung noch vorhanden ist)
-    - Nucleo Board erhält jede X ms "get_display_state". Falls dieses nicht mehr ankommt nach z.B 1s, dann ist die Verbindung weg
-    - Falls Verbindung weg: Standardtext ausgeben + Standardgeschwindigkeit
     
 Others
 - docstrings on_... functions
@@ -259,11 +250,20 @@ class MainWindow(QMainWindow):
             parent=self.runWidget
         )
 
-        self.warningLabel = createLabelText(
+        self.warning_Label = createLabelText(
             "Don't unplug the power cable from the device while the display is on!",
             fontSize=10,
             textColor="red",
-            rect=(10, 450, 385, 20),
+            rect=(10, 453, 385, 20),
+            bold=True,
+            parent=self.runWidget
+        )
+
+        self.madeby_Label = createLabelText(
+            "Developed by SCA",
+            fontSize=9,
+            textColor="gray",
+            rect=(600, 453, 385, 20),
             bold=True,
             parent=self.runWidget
         )

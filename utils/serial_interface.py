@@ -22,6 +22,9 @@ _STD_TIMEOUT = 0.5     # seconds
 
 
 class _Comms:
+    """
+    Represents the standard communication queries.
+    """
 
     def __init__(self, baudrate: int = _STD_BAUDRATE, port: str = _STD_PORT, timeout: int = _STD_TIMEOUT):
         self.__ser = _Serial(baudrate, port, timeout)
@@ -51,6 +54,10 @@ class _Comms:
         return result
 
     def exec_task_ser(self, task: str, arg: Optional[str]):
+        """
+        Executes the task from the GUI.
+        """
+
         if task in ["display_on\n", "display_off\n", "runninglight_on\n", "runninglight_off\n"]:
             feedback = self.__ser.serialWrite(task)
 
@@ -68,6 +75,9 @@ class _Comms:
 
 
 class Tasks:
+    """
+    Represents the task which has to be done.
+    """
 
     def __init__(self, main_window: MainWindow):
         super().__init__()
@@ -95,6 +105,12 @@ class Tasks:
         self.running = True
 
     def loop(self, progress_callback):
+        """
+        Task loop.
+
+        Executes the queries and the GUI-task.
+        """
+
         caller_stack = inspect.stack()
         caller_func = caller_stack[1][3]
 
