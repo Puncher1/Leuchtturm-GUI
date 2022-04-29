@@ -592,7 +592,8 @@ def createComboBox(items: List[str], placeholder: str = None, isPlaceholderBold:
     return comboBox
 
 
-def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: int, orientation: Qt.Orientation, func: Callable = None,
+def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: int, orientation: Qt.Orientation,
+                 func_onRelease: Callable = None, func_onValueChanged: Callable = None,
                  rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QSlider`` with the passed arguments and returns it.
@@ -602,7 +603,8 @@ def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: in
     :param maxVal: The maximum value of the slider: int
     :param singleStep: The single step size: int
     :param orientation: The orientation of the slide (vertical or horizontal): Qt.Orientation
-    :param func: The function which gets called when the slider value has changed, default to None: Callable
+    :param func_onRelease: The function which gets called when the slider is released, default to None: Callable
+    :param func_onValueChanged: The function which gets called when the slider value has changed, default to None: Callable
     :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
     :param parent: The parent widget on which the button should be placed on (default to None): QWidget
 
@@ -619,12 +621,16 @@ def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: in
     slider.setMaximum(maxVal)
     slider.setSingleStep(singleStep)
     slider.setOrientation(orientation)
+    slider.setTickInterval(1)
 
     if rect is not None:
         slider.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))
 
-    if func is not None:
-        slider.valueChanged.connect(func)
+    if func_onRelease is not None:
+        slider.sliderReleased.connect(func_onRelease)
+
+    if func_onValueChanged is not None:
+        slider.valueChanged.connect(func_onValueChanged)
 
     return slider
 

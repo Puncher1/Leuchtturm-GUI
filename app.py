@@ -22,10 +22,10 @@ TODO:
 Run Tab
 
 Running Light:
-- ONOFF check via UART (like at displayONOFF)
-- Speed with confirm/send button + label with current percent + current speed + default speed at uC (e.g. 50%) 
+- Speed (with confirm/send button)  + current speed + default speed at uC (e.g. 50%) 
+    - Umdesignen!! Titel, darunter "Current Speed", darunter Slider welcher darunter die aktuelle Value hat
 - All buttons etc. are disabled if no connection is there
-
+- maybe brightness 
 
 - create functions for things
 
@@ -185,21 +185,30 @@ class MainWindow(QMainWindow):
             func=self.run.on_btnRunninglightONOFF_pressed
         )
 
+        self.runningLightCurrentSpeed_Label = createLabelText(
+            text="Current Speed: ...",
+            fontSize=11,
+            rect=(520, 225, 150, 30),
+            parent=self.runWidget
+        )
+
         self.runningLightSpeed_Slider = createSlider(
-            (25, 100),
+            (25, 150),
             minVal=1,
             maxVal=100,
             singleStep=1,
             orientation=Qt.Vertical,
-            rect=(555, 230, 21, 160),
+            rect=(555, 265, 0, 0),
             parent=self.runWidget,
-            func=None   # TODO
+            func_onRelease=self.run.on_sliderRunninglight_released,
+            func_onValueChanged=self.run.on_sliderRunninglightSpeed_changed
         )
 
-        self.runningLightSpeed_Label = createLabelText(
-            "Speed",
+        self.runningLightSpeedValue_Label = createLabelText(
+            text=str(self.runningLightSpeed_Slider.value()),
             fontSize=10,
-            rect=(510, 265, 31, 21),
+            textAlignment=Qt.AlignCenter,
+            rect=(555, 415, 25, 20),
             parent=self.runWidget
         )
 

@@ -16,7 +16,10 @@ class RunEvents:
 
     def on_btnDisplayONOFF_pressed(self):
         displayBtn_ONOFF_text = self.mainWindow.displayBtn_ONOFF.text()
-        feedback = self.mainWindow.tasks.set_display_state(displayBtn_ONOFF_text)
+        feedback, global_error = self.mainWindow.tasks.set_display_state(displayBtn_ONOFF_text)
+
+        if global_error:
+            return
 
         createMessageBox(
             self.mainWindow,
@@ -75,7 +78,10 @@ class RunEvents:
 
     def on_btnRunninglightONOFF_pressed(self):
         runninglightBtn_ONOFF_text = self.mainWindow.runningLightBtn_ONOFF.text()
-        feedback = self.mainWindow.tasks.set_runninglight_state(runninglightBtn_ONOFF_text)
+        feedback, global_error = self.mainWindow.tasks.set_runninglight_state(runninglightBtn_ONOFF_text)
+
+        if global_error:
+            return
 
         createMessageBox(
             self.mainWindow,
@@ -84,3 +90,24 @@ class RunEvents:
             [QMessageBox.Ok],
             QMessageBox.Information
         )
+
+
+    def on_sliderRunninglight_released(self):
+        runninglight_speed = self.mainWindow.runningLightSpeed_Slider.value()
+        feedback, global_error = self.mainWindow.tasks.set_runninglight_speed(str(runninglight_speed))
+
+        if global_error:
+            return
+
+        feedback = feedback.decode()
+        createMessageBox(
+            self.mainWindow,
+            "Running Light Speed",
+            f"Successfully changed speed to {feedback}%",
+            [QMessageBox.Ok],
+            QMessageBox.Information
+        )
+
+    def on_sliderRunninglightSpeed_changed(self):
+        runninglight_speed = self.mainWindow.runningLightSpeed_Slider.value()
+        self.mainWindow.runningLightSpeedValue_Label.setText(str(runninglight_speed))

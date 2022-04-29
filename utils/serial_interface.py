@@ -38,18 +38,22 @@ class _Comms:
         result = self.__ser.serialWrite("get_runninglight_state\n")
         return result
 
+    def get_runninglight_speed(self):
+        result = self.__ser.serialWrite("get_runninglight_speed\n")
+        return result
+
     def get_board_state_ser(self):
         result = self.__ser.serialWrite("get_board_state\n")
         return result
 
-    def exec_task_ser(self, task: str, text: Optional[str]):
+    def exec_task_ser(self, task: str, arg: Optional[str]):
         if task in ["display_on\n", "display_off\n", "runninglight_on\n", "runninglight_off\n"]:
             feedback = self.__ser.serialWrite(task)
 
-        elif task == "update_text\n":
-            if text is not None:
-                feedback = self.__ser.serialWrite("update_text\n")
-                feedback = self.__ser.serialWrite(f"{text}\n")
+        elif task in ["update_text\n", "update_runninglight_speed\n"]:
+            if arg is not None:
+                feedback = self.__ser.serialWrite(task)
+                feedback = self.__ser.serialWrite(f"{arg}\n")
             else:
                 raise ValueError(f"text not provided")
 
@@ -68,7 +72,7 @@ class Tasks:
         self.__comms = _Comms()
 
         self.__task = None
-        self.__text = None
+        self.__arg = None
         self.__feedback = None
         self.__task_done = False
         self.global_error = False
@@ -117,6 +121,8 @@ class Tasks:
                 self.__main_window.runningLightBtn_ONOFF.setDisabled(True)
                 self.__main_window.runningLightBtn_ONOFF.setStyleSheet("color: #000000")
                 self.__main_window.runningLightBtn_ONOFF.setText("...")
+                self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: ...%")
+                self.__main_window.runningLightSpeed_Slider.setDisabled(True)
 
                 print("board timeout")
 
@@ -139,6 +145,8 @@ class Tasks:
                     progress_callback.emit(self.__close_no_response_error)
                     self.__close_no_response_error = False
                     wait_pv = wait_cyc        # to immediately update GUI
+
+                    self.__main_window.runningLightSpeed_Slider.setEnabled(True)
 
 
             if wait_pv >= wait_cyc:
@@ -166,7 +174,7 @@ class Tasks:
                         button_state = "ON"
                         color = Color.green
                     else:
-                        raise ValueError("'button_state' is neither 'ON' nor 'OFF'.")
+                        raise ValueError(f"'button_state' is neither 'ON' nor 'OFF': {button_state}.")
 
                     self.__main_window.displayBtn_ONOFF.setStyleSheet("color: #{}".format(color))
                     self.__main_window.displayBtn_ONOFF.setText(button_state)
@@ -196,7 +204,7 @@ class Tasks:
                     runninglight_state = runninglight_state.decode()
 
                 except (serial.SerialException, serial.SerialTimeoutException):
-                    print("runninglight_error")
+                    print("runninglight_state_error")
                     self.__board_state_timeout = True
                     continue
 
@@ -213,6 +221,22 @@ class Tasks:
                     self.__main_window.runningLightBtn_ONOFF.setStyleSheet("color: #{}".format(color))
                     self.__main_window.runningLightBtn_ONOFF.setText(runninglight_state)
                     self.__main_window.runningLightBtn_ONOFF.setEnabled(True)
+
+
+                # |-------- get real running light speed --------|
+                try:
+                    runninglight_speed = self.__comms.get_runninglight_speed()
+                    runninglight_speed = runninglight_speed.decode()
+                except (serial.SerialException, serial.SerialTimeoutException):
+                    print("runninglight_speed_error")
+                    self.__board_state_timeout = True
+                    continue
+
+                else:
+                    if runninglight_speed.isdigit():
+                        self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: {runninglight_speed}%")
+                    else:
+                        raise ValueError("'runninglight_speed' is not a valid number")
 
 
                 # |-------- get board state --------|
@@ -236,7 +260,7 @@ class Tasks:
                 break
 
             if self.__task is not None:
-                feedback = self.__comms.exec_task_ser(self.__task, self.__text)
+                feedback = self.__comms.exec_task_ser(self.__task, self.__arg)
                 self.__feedback = feedback
                 self.__task_done = True
                 self.__task = None
@@ -244,9 +268,9 @@ class Tasks:
 
             time.sleep(0.01)
 
-    def __set_task(self, cmd: str, text: str = None):
+    def __set_task(self, cmd: str, arg: str = None):
         self.__task = cmd
-        self.__text = text
+        self.__arg = arg
 
         while not self.__task_done and not self.global_error:
             pass
@@ -280,6 +304,19 @@ class Tasks:
 
         return feedback
 
+    def set_runninglight_speed(self, speed: str):
+        if speed.isdigit():
+
+            if int(speed) in range(1, 100 + 1):
+                feedback = self.__set_task("update_runninglight_speed\n", speed)
+
+            else:
+                raise ValueError("'speed' is not between 1 and 100")
+
+        else:
+            raise ValueError("'speed' is not a valid number")
+
+        return feedback
 
 class _Serial:
 
