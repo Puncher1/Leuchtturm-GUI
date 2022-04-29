@@ -22,26 +22,16 @@ TODO:
 Run Tab
 
 Running Light:
-- All buttons etc. are disabled if no connection is there
 - maybe brightness 
 
-- create functions for things
-
-
 Kommunikation mit Nucleo Board
-
-!!!
 - Nucleo Board überprüft, ob PC noch "lebt" (ob Verbindung noch vorhanden ist)
     - Nucleo Board erhält jede X ms "get_display_state". Falls dieses nicht mehr ankommt nach z.B 1s, dann ist die Verbindung weg
     - Falls Verbindung weg: Standardtext ausgeben + Standardgeschwindigkeit
     
-- Nucleo Board wird neugestartet (z.B. Strom raus und wieder rein)
-    - Standardtext ausgeben + Standardgeschwindigkeit ausgeben
-
 Others
 - docstrings on_... functions
 - PEP8
-
 
 """
 
