@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
             text="Running Light",    # TODO: size overwrites rect size --> maybe dynamic?
             fontSize=13,
             bold=True,
-            rect=(527, 140, 150, 30),
+            rect=(547, 140, 150, 30),
             parent=self.runWidget
         )
 
@@ -169,7 +169,7 @@ class MainWindow(QMainWindow):
             (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
             text="...",
             disabled=True,
-            rect=(540, 180, 71, 31),
+            rect=(560, 180, 71, 31),
             parent=self.runWidget,
             func=self.run.on_btnRunninglightONOFF_pressed
         )
@@ -177,7 +177,7 @@ class MainWindow(QMainWindow):
         self.runningLightCurrentSpeed_Label = createLabelText(
             text="Current Speed: ...",
             fontSize=11,
-            rect=(520, 225, 150, 30),
+            rect=(540, 225, 150, 30),
             parent=self.runWidget
         )
 
@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
             singleStep=1,
             orientation=Qt.Vertical,
             isDisabled=True,
-            rect=(555, 265, 0, 0),
+            rect=(575, 265, 0, 0),
             parent=self.runWidget,
             func_onRelease=self.run.on_sliderRunninglight_released,
             func_onValueChanged=self.run.on_sliderRunninglightSpeed_changed
@@ -198,7 +198,35 @@ class MainWindow(QMainWindow):
             text=str(self.runningLightSpeed_Slider.value()),
             fontSize=10,
             textAlignment=Qt.AlignCenter,
-            rect=(555, 415, 25, 20),
+            rect=(575, 415, 25, 20),
+            parent=self.runWidget
+        )
+
+        self.currentBrightness_Label = createLabelText(
+            text="Current Brightness: ...",
+            fontSize=11,
+            rect=(360, 225, 160, 30),
+            parent=self.runWidget
+        )
+
+        self.brightness_Slider = createSlider(
+            (25, 150),
+            minVal=1,
+            maxVal=100,
+            singleStep=1,
+            orientation=Qt.Vertical,
+            isDisabled=True,
+            rect=(410, 265, 0, 0),
+            parent=self.runWidget,
+            func_onRelease=self.run.on_sliderBrightness_released,
+            func_onValueChanged=self.run.on_sliderBrightness_changed
+        )
+
+        self.brightnessValue_Label = createLabelText(
+            text=str(self.runningLightSpeed_Slider.value()),
+            fontSize=10,
+            textAlignment=Qt.AlignCenter,
+            rect=(410, 415, 25, 20),
             parent=self.runWidget
         )
 

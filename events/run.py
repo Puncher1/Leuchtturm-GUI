@@ -111,3 +111,33 @@ class RunEvents:
     def on_sliderRunninglightSpeed_changed(self):
         runninglight_speed = self.mainWindow.runningLightSpeed_Slider.value()
         self.mainWindow.runningLightSpeedValue_Label.setText(str(runninglight_speed))
+
+
+    def on_sliderBrightness_released(self):
+        duty_cycle_percent = self.mainWindow.brightness_Slider.value()
+        duty_cycle = round((16 / 100) * int(duty_cycle_percent))
+        if duty_cycle == 0:
+            duty_cycle = 1
+
+        feedback, global_error = self.mainWindow.tasks.set_brightness(str(duty_cycle))
+        feedback = feedback.decode("cp1252")
+
+        feedback = round((100 / 16) * int(feedback))
+
+        if global_error:
+            return
+
+        createMessageBox(
+            self.mainWindow,
+            "Dot Matrix Brightness",
+            f"Successfully changed brightness to {feedback}%",
+            [QMessageBox.Ok],
+            QMessageBox.Information
+        )
+
+        if feedback != duty_cycle_percent:
+            self.mainWindow.brightness_Slider.setValue(feedback)
+
+    def on_sliderBrightness_changed(self):
+        duty_cycle = self.mainWindow.brightness_Slider.value()
+        self.mainWindow.brightnessValue_Label.setText(str(duty_cycle))

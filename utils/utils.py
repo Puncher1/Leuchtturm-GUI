@@ -623,9 +623,7 @@ def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: in
     slider.setFixedSize(size[0], size[1])
     slider.setMinimum(minVal)
     slider.setMaximum(maxVal)
-    slider.setSingleStep(singleStep)
     slider.setOrientation(orientation)
-    slider.setTickInterval(1)
 
     if rect is not None:
         slider.setGeometry(QRect(rect[0], rect[1], rect[2], rect[3]))

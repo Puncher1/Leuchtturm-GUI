@@ -26,11 +26,11 @@ class _Comms:
     def __init__(self, baudrate: int = _STD_BAUDRATE, port: str = _STD_PORT, timeout: int = _STD_TIMEOUT):
         self.__ser = _Serial(baudrate, port, timeout)
 
-    def get_display_state_ser(self):
+    def get_display_state(self):
         result = self.__ser.serialWrite("get_display_state\n")
         return result
 
-    def get_text_ser(self):
+    def get_text(self):
         result = self.__ser.serialWrite("get_text\n")
         return result
 
@@ -42,6 +42,10 @@ class _Comms:
         result = self.__ser.serialWrite("get_runninglight_speed\n")
         return result
 
+    def get_dutycycle(self):
+        result = self.__ser.serialWrite("get_dutycycle\n")
+        return result
+
     def get_board_state_ser(self):
         result = self.__ser.serialWrite("get_board_state\n")
         return result
@@ -50,7 +54,7 @@ class _Comms:
         if task in ["display_on\n", "display_off\n", "runninglight_on\n", "runninglight_off\n"]:
             feedback = self.__ser.serialWrite(task)
 
-        elif task in ["update_text\n", "update_runninglight_speed\n"]:
+        elif task in ["update_text\n", "update_runninglight_speed\n", "update_dutycycle\n"]:
             if arg is not None:
                 feedback = self.__ser.serialWrite(task)
                 feedback = self.__ser.serialWrite(f"{arg}\n")
@@ -80,8 +84,13 @@ class Tasks:
         self.__board_state_timeout = False
         self.__close_no_response_error = False
 
-        self.__current_slider_value = None
-        self.__old_slider_value = None
+        self.__current_speed_slider_value = None
+        self.__old_speed_slider_value = None
+
+        self.__current_dutycycle_slider_value = None
+        self.__old_dutycycle_slider_value = None
+        self.__current_dutycycle = None
+        self.__old_dutycycle = None
 
         self.running = True
 
@@ -126,6 +135,8 @@ class Tasks:
                 self.__main_window.runningLightBtn_ONOFF.setText("...")
                 self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: ...%")
                 self.__main_window.runningLightSpeed_Slider.setDisabled(True)
+                self.__main_window.currentBrightness_Label.setText(f"Current Brightness: ...%")
+                self.__main_window.brightness_Slider.setDisabled(True)
 
                 print("board timeout")
 
@@ -150,6 +161,7 @@ class Tasks:
                     wait_pv = wait_cyc        # to immediately update GUI
 
                     self.__main_window.runningLightSpeed_Slider.setEnabled(True)
+                    self.__main_window.brightness_Slider.setEnabled(True)
 
             if wait_pv >= wait_cyc:
                 print("sec loop")
@@ -160,7 +172,7 @@ class Tasks:
 
                 # |-------- get real display state --------|
                 try:
-                    button_state = self.__comms.get_display_state_ser()
+                    button_state = self.__comms.get_display_state()
                     button_state = button_state.decode("cp1252")
 
                 except (serial.SerialException, serial.SerialTimeoutException):
@@ -188,7 +200,7 @@ class Tasks:
 
                 # |-------- get real text --------|
                 try:
-                    text = self.__comms.get_text_ser()
+                    text = self.__comms.get_text()
                     text = text.decode("cp1252")
 
                 except serial.SerialTimeoutException:
@@ -239,14 +251,40 @@ class Tasks:
                         self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: {runninglight_speed}%")
                         self.__main_window.runningLightSpeed_Slider.setEnabled(True)
 
-                        self.__current_slider_value = runninglight_speed
-                        if self.__current_slider_value != self.__old_slider_value:
+                        self.__current_speed_slider_value = runninglight_speed
+                        if self.__current_speed_slider_value != self.__old_speed_slider_value:
                             percent = [int(s) for s in runninglight_speed.split() if s.isdigit()]
                             self.__main_window.runningLightSpeed_Slider.setValue(percent[0])
-                            self.__old_slider_value = self.__current_slider_value
+                            self.__old_speed_slider_value = self.__current_speed_slider_value
 
                     else:
                         raise ValueError("'runninglight_speed' is not a valid number")
+
+
+                    # |-------- get real duty cycle --------|
+                    try:
+                        duty_cycle = self.__comms.get_dutycycle()
+                        duty_cycle = duty_cycle.decode("cp1252")
+                    except (serial.SerialException, serial.SerialTimeoutException):
+                        print("dutycycle_error")
+                        self.__board_state_timeout = True
+                        continue
+
+                    else:
+                        if duty_cycle.isdigit():
+                            duty_cycle_percent = round((100 / 16) * int(duty_cycle))
+
+                            self.__main_window.currentBrightness_Label.setText(f"Current Brightness: {duty_cycle_percent}%")
+                            self.__main_window.brightness_Slider.setEnabled(True)
+
+                            self.__current_dutycycle = duty_cycle_percent
+                            if self.__current_dutycycle != self.__old_dutycycle:
+                                self.__main_window.brightness_Slider.setValue(duty_cycle_percent)
+
+                                self.__old_dutycycle = self.__current_dutycycle
+
+                        else:
+                            raise ValueError("'duty_cycle' is not a valid number")
 
 
                 # |-------- get board state --------|
@@ -325,6 +363,20 @@ class Tasks:
 
         else:
             raise ValueError("'speed' is not a valid number")
+
+        return feedback
+
+    def set_brightness(self, duty_cycle: str):
+        if duty_cycle.isdigit():
+
+            if int(duty_cycle) in range(1, 100 + 1):
+                feedback = self.__set_task("update_dutycycle\n", duty_cycle)
+
+            else:
+                raise ValueError("'duty_cycle' is not between 1 and 100")
+
+        else:
+            raise ValueError("'duty_cycle' is not a valid number")
 
         return feedback
 
