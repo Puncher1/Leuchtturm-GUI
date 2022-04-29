@@ -237,14 +237,13 @@ class Tasks:
                 else:
                     if runninglight_speed.isdigit():
                         self.__main_window.runningLightCurrentSpeed_Label.setText(f"Current Speed: {runninglight_speed}%")
+                        self.__main_window.runningLightSpeed_Slider.setEnabled(True)
 
                         self.__current_slider_value = runninglight_speed
                         if self.__current_slider_value != self.__old_slider_value:
                             percent = [int(s) for s in runninglight_speed.split() if s.isdigit()]
                             self.__main_window.runningLightSpeed_Slider.setValue(percent[0])
                             self.__old_slider_value = self.__current_slider_value
-
-
 
                     else:
                         raise ValueError("'runninglight_speed' is not a valid number")

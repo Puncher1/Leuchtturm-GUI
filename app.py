@@ -21,8 +21,6 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 TODO:
 Run Tab
 
-- !!! TEXT: Ü etc. werden in 2 chars versendet, nicht in einem
-
 Running Light:
 - All buttons etc. are disabled if no connection is there
 - maybe brightness 
@@ -199,6 +197,7 @@ class MainWindow(QMainWindow):
             maxVal=100,
             singleStep=1,
             orientation=Qt.Vertical,
+            isDisabled=True,
             rect=(555, 265, 0, 0),
             parent=self.runWidget,
             func_onRelease=self.run.on_sliderRunninglight_released,

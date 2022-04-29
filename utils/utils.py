@@ -596,7 +596,7 @@ def createComboBox(items: List[str], placeholder: str = None, isPlaceholderBold:
 
 
 def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: int, orientation: Qt.Orientation,
-                 func_onRelease: Callable = None, func_onValueChanged: Callable = None,
+                 isDisabled: bool = False, func_onRelease: Callable = None, func_onValueChanged: Callable = None,
                  rect: Tuple[int, int, int, int] = None, parent: QWidget = None):
     """
     Creates a ``Qt.QSlider`` with the passed arguments and returns it.
@@ -606,6 +606,7 @@ def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: in
     :param maxVal: The maximum value of the slider: int
     :param singleStep: The single step size: int
     :param orientation: The orientation of the slide (vertical or horizontal): Qt.Orientation
+    :param isDisabled: Whether the slider should be disabled or not (default to False): bool
     :param func_onRelease: The function which gets called when the slider is released, default to None: Callable
     :param func_onValueChanged: The function which gets called when the slider value has changed, default to None: Callable
     :param rect: The geometry of the widget (default to None): Tuple[left: int, top: int, width: int, height: int]
@@ -634,6 +635,9 @@ def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: in
 
     if func_onValueChanged is not None:
         slider.valueChanged.connect(func_onValueChanged)
+
+    if isDisabled:
+        slider.setDisabled(True)
 
     return slider
 
