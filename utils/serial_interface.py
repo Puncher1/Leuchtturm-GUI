@@ -159,7 +159,7 @@ class Tasks:
                 # |-------- get real display state --------|
                 try:
                     button_state = self.__comms.get_display_state_ser()
-                    button_state = button_state.decode()
+                    button_state = button_state.decode("cp1252")
 
                 except (serial.SerialException, serial.SerialTimeoutException):
                     print("display_error")
@@ -187,7 +187,7 @@ class Tasks:
                 # |-------- get real text --------|
                 try:
                     text = self.__comms.get_text_ser()
-                    text = text.decode()
+                    text = text.decode("cp1252")
 
                 except serial.SerialTimeoutException:
                     print("text_error")
@@ -201,7 +201,7 @@ class Tasks:
                 # |-------- get real running light state --------|
                 try:
                     runninglight_state = self.__comms.get_runninglight_state()
-                    runninglight_state = runninglight_state.decode()
+                    runninglight_state = runninglight_state.decode("cp1252")
 
                 except (serial.SerialException, serial.SerialTimeoutException):
                     print("runninglight_state_error")
@@ -226,7 +226,7 @@ class Tasks:
                 # |-------- get real running light speed --------|
                 try:
                     runninglight_speed = self.__comms.get_runninglight_speed()
-                    runninglight_speed = runninglight_speed.decode()
+                    runninglight_speed = runninglight_speed.decode("cp1252")
                 except (serial.SerialException, serial.SerialTimeoutException):
                     print("runninglight_speed_error")
                     self.__board_state_timeout = True
@@ -345,20 +345,26 @@ class _Serial:
             else:
                 raise serial.SerialException(e)
         else:
-            encodedString = string.encode()
+            encodedString = bytes(string, "cp1252")
 
             try:
-                bytes = self.ser.write(encodedString)
+                bytes_ = self.ser.write(encodedString)
             except Exception as e:
                 self.ser.close()
                 raise serial.SerialException(f"Write operation failed! Error: {e}")
 
-            if bytes != len(encodedString):
+            if bytes_ != len(encodedString):
                 self.ser.close()
                 raise serial.SerialException(f"Write operation failed!")
 
             feedback = self.ser.read(500)
-            feedback = feedback.split(b"\0")[0].strip()
+
+            feedback = feedback.split(b"\0")[0]
+
+            # check if last 10 characters are spaces
+            if feedback[-10:] == b"          ":
+                # if yes remove those
+                feedback = feedback[:-10]
 
             print(f"{encodedString=}, {feedback=}")
             if feedback is None or feedback == b"":

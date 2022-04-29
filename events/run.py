@@ -99,7 +99,7 @@ class RunEvents:
         if global_error:
             return
 
-        feedback = feedback.decode()
+        feedback = feedback.decode("cp1252")
         createMessageBox(
             self.mainWindow,
             "Running Light Speed",
