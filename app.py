@@ -21,9 +21,9 @@ windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 TODO:
 Run Tab
 
+- !!! TEXT: Ü etc. werden in 2 chars versendet, nicht in einem
+
 Running Light:
-- Speed (with confirm/send button)  + current speed + default speed at uC (e.g. 50%) 
-    - Umdesignen!! Titel, darunter "Current Speed", darunter Slider welcher darunter die aktuelle Value hat
 - All buttons etc. are disabled if no connection is there
 - maybe brightness 
 
@@ -32,6 +32,7 @@ Running Light:
 
 Kommunikation mit Nucleo Board
 
+!!!
 - Nucleo Board überprüft, ob PC noch "lebt" (ob Verbindung noch vorhanden ist)
     - Nucleo Board erhält jede X ms "get_display_state". Falls dieses nicht mehr ankommt nach z.B 1s, dann ist die Verbindung weg
     - Falls Verbindung weg: Standardtext ausgeben + Standardgeschwindigkeit
@@ -245,7 +246,7 @@ class MainWindow(QMainWindow):
             "Don't unplug the power cable from the device while the display is on!",
             fontSize=10,
             textColor="red",
-            rect=(10, 450, 350, 20),
+            rect=(10, 450, 385, 20),
             bold=True,
             parent=self.runWidget
         )
