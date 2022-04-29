@@ -50,7 +50,8 @@ HINT_gridLayout = Union[
     ],
 ]
 
-# Overwrites
+# | --------------- Overwrites --------------- |
+
 class QComboBox(QComboBox):
     """
     @Overwrite
@@ -94,7 +95,7 @@ class QComboBox(QComboBox):
         painter.drawControl(QStyle.CE_ComboBoxLabel, opt)
 
 
-# Own Classes
+# | --------------- Own Classes --------------- |
 
 class ScrollLabel(QScrollArea):
 
@@ -590,6 +591,8 @@ def createComboBox(items: List[str], placeholder: str = None, isPlaceholderBold:
         comboBox.setCurrentIndex(-1)
 
     return comboBox
+
+
 
 
 def createSlider(size: Tuple[int, int], minVal: int, maxVal: int, singleStep: int, orientation: Qt.Orientation,
