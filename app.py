@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.TEXT_GAP = "          "
+        self.TEXT_GAP = "               "            # 15 spaces
 
         self.editor = EditorEvents(self)
         self.run = RunEvents(self)
