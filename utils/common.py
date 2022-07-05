@@ -2,7 +2,6 @@
 
 class Path:
     json_Texts = "./utils/json/texts.json"
-    json_States = "./utils/json/states.json"
 
     png_MainIcon = "./utils/images/lighthouse.png"
     png_ExecutiveDark = "./utils/images/icons/execute_dark.png"

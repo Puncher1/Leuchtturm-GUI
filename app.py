@@ -220,9 +220,6 @@ class MainWindow(QMainWindow):
         with open(Path.json_Texts, "r") as fdataTexts:
             dataTexts = json.load(fdataTexts)
 
-        with open(Path.json_States, "r") as fdataStates:
-            dataStates = json.load(fdataStates)
-
         if len(list(dataTexts.keys())) == 0:
             placeholder = "No texts available"
 

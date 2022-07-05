@@ -787,9 +787,6 @@ def updateRunDropdown(comboBox: QComboBox):
     with open(Path.json_Texts, "r") as fdataTexts:
         dataTexts = json.load(fdataTexts)
 
-    with open(Path.json_States, "r") as fdataStates:
-        dataStates = json.load(fdataStates)
-
     comboBox.clear()
     comboBox.addItems(dataTexts.keys())
 
