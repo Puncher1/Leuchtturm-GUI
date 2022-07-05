@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.TEXT_GAP = "               "            # 15 spaces
+        self.TEXT_GAP = "                    "            # 20 spaces
 
         self.editor = EditorEvents(self)
         self.run = RunEvents(self)
@@ -52,9 +52,7 @@ class MainWindow(QMainWindow):
         self.titleWidget = createLabelText("Editor", fontSize=18, bold=True, underline=True)
 
         self.editorDescWidget = createLabelText(
-            "Here, you can add your pre-created texts which you can then simply select and send to the dot-matrix display "
-            "(even if the program has restarted)."
-            
+            "Here, you can add your pre-created texts which you can then simply select and send to the dot-matrix display."
         )
 
         self.editorDescWidget.setWordWrap(True)
