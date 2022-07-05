@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
         self.editorDescWidget.setWordWrap(True)
         self.editorDescWidget.setFixedSize(590, 50)
 
-        self.tableWidget = createTable(20, 2, [(0, 100), (1, 475)], False, True, False, True, True)
+        self.tableWidget = createTable(20, 2, [(0, 200), (1, 375)], False, True, False, True, True)
 
         self.buttonNew = createPushButton(
             text="New",
