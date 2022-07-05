@@ -153,8 +153,8 @@ cython_debug/
 
 
 # PROJECT
-utils/json/
-log/
+
+common/
 leuchtturm.ui
 ui2py.bat
 ui2py_output.py

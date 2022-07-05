@@ -71,7 +71,7 @@ class ErrorHandler:
                 cet_dt = self.__getLocalDatetime("CET")
                 cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
 
-                errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
+                errorFile = open(f"./common/log/error-{cet_dtString}.txt", "w+")
                 errorFile.write(full_traceback_text)
 
             else:
@@ -87,7 +87,7 @@ class ErrorHandler:
                 cet_dt = self.__getLocalDatetime("CET")
                 cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
 
-                errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
+                errorFile = open(f"./common/log/error-{cet_dtString}.txt", "w+")
                 errorFile.write(full_traceback_text)
 
         else:
@@ -103,7 +103,7 @@ class ErrorHandler:
             cet_dt = self.__getLocalDatetime("CET")
             cet_dtString = cet_dt.strftime("%y%m%d_%H%M%S")
 
-            errorFile = open(f"./log/error-{cet_dtString}.txt", "w+")
+            errorFile = open(f"./common/log/error-{cet_dtString}.txt", "w+")
             errorFile.write(full_traceback_text)
 
         QApplication.quit()
