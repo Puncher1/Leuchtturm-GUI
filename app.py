@@ -17,16 +17,6 @@ appID = 'sca.leuchtturm.v1.0'
 windll.shell32.SetCurrentProcessExplicitAppUserModelID(appID)
 
 
-"""
-TODO:
-    
-Others
-- docstrings on_... functions
-- PEP8
-
-"""
-
-
 # Main
 class MainWindow(QMainWindow):
     """
@@ -147,7 +137,7 @@ class MainWindow(QMainWindow):
         )
 
         self.runningLightTitle = createLabelText(
-            text="Running Light",    # TODO: size overwrites rect size --> maybe dynamic?
+            text="Running Light",
             fontSize=13,
             bold=True,
             rect=(547, 140, 150, 30),
@@ -155,7 +145,7 @@ class MainWindow(QMainWindow):
         )
 
         self.runningLightBtn_ONOFF = createPushButton(
-            (60, 30),                       # TODO: size overwrites rect size --> maybe dynamic?
+            (60, 30),
             text="...",
             disabled=True,
             rect=(560, 180, 71, 31),

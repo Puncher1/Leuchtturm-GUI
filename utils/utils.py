@@ -555,7 +555,7 @@ def createDialogButtonBox(btns: List[Union[Tuple[str, QDialogButtonBox.ButtonRol
 
 def createComboBox(items: List[str], placeholder: str = None, isPlaceholderBold: bool = False,
                    fontStr: str = STD_FONT, fontSize: int = STD_FONTSIZE, rect: Tuple[int, int, int, int] = None,
-                   parent: QWidget = None): # TODO: size
+                   parent: QWidget = None):
     """
     Creates a ``Qt.QComboBox`` (dropdown) with the passed arguments and returns it.
 
