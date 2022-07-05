@@ -4,8 +4,8 @@ class Path:
     json_Texts = "./common/json/texts.json"
 
     png_MainIcon = "./common/images/lighthouse.png"
-    png_ExecutiveDark = "./common/images/icons/execute_dark.png"
-    png_Notebook = "./common/images/icons/notebook.png"
+    png_ExecutiveDark = "./common/images/execute_dark.png"
+    png_Notebook = "./common/images/notebook.png"
 
     ico_MainIcon = "./common/images/lighthouse.ico"
 
